@@ -1,19 +1,54 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Link, useSearchParams } from 'react-router-dom';
-import { Brain, Mail, Lock, User, ArrowRight, Eye, EyeOff } from 'lucide-react';
+import { Link, useSearchParams, useNavigate } from 'react-router-dom';
+import { Brain, Mail, Lock, User, ArrowRight, Eye, EyeOff, Loader2 } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
+import { toast } from 'sonner';
 
 export default function AuthPage() {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(searchParams.get('mode') !== 'register');
   const [showPass, setShowPass] = useState(false);
   const [role, setRole] = useState<'candidate' | 'recruiter' | 'admin'>('candidate');
   const [form, setForm] = useState({ name: '', email: '', password: '' });
+  const [loading, setLoading] = useState(false);
+  const { signIn, signUp } = useAuth();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Navigate to the role-based dashboard
-    window.location.href = `/${role}`;
+    setLoading(true);
+
+    try {
+      if (isLogin) {
+        const { error } = await signIn(form.email, form.password);
+        if (error) {
+          toast.error(error.message);
+          setLoading(false);
+          return;
+        }
+        toast.success('Signed in successfully!');
+        navigate(`/${role}`);
+      } else {
+        if (!form.name.trim()) {
+          toast.error('Please enter your name');
+          setLoading(false);
+          return;
+        }
+        const { error } = await signUp(form.email, form.password, form.name, role);
+        if (error) {
+          toast.error(error.message);
+          setLoading(false);
+          return;
+        }
+        toast.success('Account created! You can now sign in.');
+        setIsLogin(true);
+      }
+    } catch (err: any) {
+      toast.error(err.message || 'An error occurred');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -40,51 +75,28 @@ export default function AuthPage() {
         </div>
 
         <div className="rounded-2xl border border-border bg-card p-8 shadow-elevated">
-          {!isLogin && (
-            <div className="mb-6">
-              <label className="text-xs font-medium text-muted-foreground mb-2 block">I am a</label>
-              <div className="grid grid-cols-3 gap-2">
-                {(['candidate', 'recruiter', 'admin'] as const).map((r) => (
-                  <motion.button
-                    key={r}
-                    type="button"
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => setRole(r)}
-                    className={`py-2 rounded-lg text-xs font-medium capitalize transition-all ${
-                      role === r
-                        ? 'bg-primary/10 text-primary border border-primary/30'
-                        : 'bg-muted text-muted-foreground border border-border hover:bg-muted/80'
-                    }`}
-                  >
-                    {r}
-                  </motion.button>
-                ))}
-              </div>
+          <div className="mb-6">
+            <label className="text-xs font-medium text-muted-foreground mb-2 block">
+              {isLogin ? 'Login as' : 'I am a'}
+            </label>
+            <div className="grid grid-cols-3 gap-2">
+              {(['candidate', 'recruiter', 'admin'] as const).map((r) => (
+                <motion.button
+                  key={r}
+                  type="button"
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setRole(r)}
+                  className={`py-2 rounded-lg text-xs font-medium capitalize transition-all ${
+                    role === r
+                      ? 'bg-primary/10 text-primary border border-primary/30'
+                      : 'bg-muted text-muted-foreground border border-border hover:bg-muted/80'
+                  }`}
+                >
+                  {r}
+                </motion.button>
+              ))}
             </div>
-          )}
-
-          {isLogin && (
-            <div className="mb-6">
-              <label className="text-xs font-medium text-muted-foreground mb-2 block">Login as</label>
-              <div className="grid grid-cols-3 gap-2">
-                {(['candidate', 'recruiter', 'admin'] as const).map((r) => (
-                  <motion.button
-                    key={r}
-                    type="button"
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => setRole(r)}
-                    className={`py-2 rounded-lg text-xs font-medium capitalize transition-all ${
-                      role === r
-                        ? 'bg-primary/10 text-primary border border-primary/30'
-                        : 'bg-muted text-muted-foreground border border-border hover:bg-muted/80'
-                    }`}
-                  >
-                    {r}
-                  </motion.button>
-                ))}
-              </div>
-            </div>
-          )}
+          </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {!isLogin && (
@@ -98,6 +110,7 @@ export default function AuthPage() {
                     onChange={(e) => setForm({ ...form, name: e.target.value })}
                     placeholder="John Doe"
                     className="w-full pl-10 pr-4 py-2.5 rounded-lg bg-muted border border-border text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 transition-all"
+                    required
                   />
                 </div>
               </div>
@@ -112,6 +125,7 @@ export default function AuthPage() {
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
                   placeholder="john@example.com"
                   className="w-full pl-10 pr-4 py-2.5 rounded-lg bg-muted border border-border text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 transition-all"
+                  required
                 />
               </div>
             </div>
@@ -125,6 +139,8 @@ export default function AuthPage() {
                   onChange={(e) => setForm({ ...form, password: e.target.value })}
                   placeholder="••••••••"
                   className="w-full pl-10 pr-10 py-2.5 rounded-lg bg-muted border border-border text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 transition-all"
+                  required
+                  minLength={6}
                 />
                 <button type="button" onClick={() => setShowPass(!showPass)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
                   {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -134,11 +150,16 @@ export default function AuthPage() {
 
             <motion.button
               type="submit"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="w-full py-3 rounded-lg bg-gradient-primary text-primary-foreground font-semibold text-sm flex items-center justify-center gap-2 shadow-glow mt-2"
+              whileHover={{ scale: loading ? 1 : 1.02 }}
+              whileTap={{ scale: loading ? 1 : 0.98 }}
+              disabled={loading}
+              className="w-full py-3 rounded-lg bg-gradient-primary text-primary-foreground font-semibold text-sm flex items-center justify-center gap-2 shadow-glow mt-2 disabled:opacity-60"
             >
-              {isLogin ? 'Sign In' : 'Create Account'} <ArrowRight size={16} />
+              {loading ? (
+                <><Loader2 size={16} className="animate-spin" /> Processing...</>
+              ) : (
+                <>{isLogin ? 'Sign In' : 'Create Account'} <ArrowRight size={16} /></>
+              )}
             </motion.button>
           </form>
 

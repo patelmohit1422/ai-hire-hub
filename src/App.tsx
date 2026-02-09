@@ -11,6 +11,7 @@ import NotFound from "./pages/NotFound";
 // Admin
 import AdminOverview from "./pages/admin/AdminOverview";
 import AdminUsers from "./pages/admin/AdminUsers";
+import AdminAddUser from "./pages/admin/AdminAddUser";
 import AdminJobs from "./pages/admin/AdminJobs";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AdminScoring from "./pages/admin/AdminScoring";
@@ -19,6 +20,7 @@ import AdminSettings from "./pages/admin/AdminSettings";
 // Recruiter
 import RecruiterOverview from "./pages/recruiter/RecruiterOverview";
 import RecruiterJobs from "./pages/recruiter/RecruiterJobs";
+import RecruiterAddJob from "./pages/recruiter/RecruiterAddJob";
 import RecruiterApplications from "./pages/recruiter/RecruiterApplications";
 import RecruiterCandidates from "./pages/recruiter/RecruiterCandidates";
 import RecruiterCompare from "./pages/recruiter/RecruiterCompare";
@@ -51,6 +53,7 @@ const App = () => (
           {/* Admin */}
           <Route path="/admin" element={<AdminOverview />} />
           <Route path="/admin/users" element={<AdminUsers />} />
+          <Route path="/admin/users/add" element={<AdminAddUser />} />
           <Route path="/admin/jobs" element={<AdminJobs />} />
           <Route path="/admin/analytics" element={<AdminAnalytics />} />
           <Route path="/admin/scoring" element={<AdminScoring />} />
@@ -59,6 +62,7 @@ const App = () => (
           {/* Recruiter */}
           <Route path="/recruiter" element={<RecruiterOverview />} />
           <Route path="/recruiter/jobs" element={<RecruiterJobs />} />
+          <Route path="/recruiter/jobs/add" element={<RecruiterAddJob />} />
           <Route path="/recruiter/applications" element={<RecruiterApplications />} />
           <Route path="/recruiter/candidates" element={<RecruiterCandidates />} />
           <Route path="/recruiter/compare" element={<RecruiterCompare />} />

@@ -1,6 +1,8 @@
 import { ReactNode } from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 import {
   LayoutDashboard, Users, Briefcase, BarChart3, Settings, FileText,
   UserCheck, GitCompare, ClipboardList, MessageSquare, Award,
@@ -59,9 +61,16 @@ interface DashboardLayoutProps {
 
 export default function DashboardLayout({ role, children }: DashboardLayoutProps) {
   const location = useLocation();
+  const navigate = useNavigate();
   const config = sidebarConfigs[role];
 
   const roleIcon = role === 'admin' ? <Shield size={20} /> : role === 'recruiter' ? <Briefcase size={20} /> : <Users size={20} />;
+
+  async function handleLogout() {
+    await supabase.auth.signOut();
+    toast.success('Logged out successfully');
+    navigate('/');
+  }
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
@@ -119,7 +128,7 @@ export default function DashboardLayout({ role, children }: DashboardLayoutProps
             <ChevronLeft size={18} />
             <span>Back to Home</span>
           </NavLink>
-          <button className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-destructive hover:bg-destructive/10 transition-all w-full">
+          <button onClick={handleLogout} className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-destructive hover:bg-destructive/10 transition-all w-full">
             <LogOut size={18} />
             <span>Logout</span>
           </button>

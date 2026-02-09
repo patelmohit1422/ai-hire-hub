@@ -1,16 +1,38 @@
+import { useState, useEffect } from 'react';
 import DashboardLayout from '@/components/DashboardLayout';
 import { motion } from 'framer-motion';
-import { Briefcase, MapPin, Clock, MoreHorizontal } from 'lucide-react';
+import { Briefcase, MapPin, Clock, MoreHorizontal, Loader2 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
-const jobs = [
-  { id: 1, title: 'Senior React Developer', dept: 'Engineering', location: 'Remote', apps: 45, status: 'active', posted: '2026-02-01' },
-  { id: 2, title: 'Product Manager', dept: 'Product', location: 'New York', apps: 32, status: 'active', posted: '2026-01-28' },
-  { id: 3, title: 'UX Designer', dept: 'Design', location: 'San Francisco', apps: 28, status: 'paused', posted: '2026-01-20' },
-  { id: 4, title: 'Data Scientist', dept: 'Analytics', location: 'Remote', apps: 67, status: 'active', posted: '2026-01-15' },
-  { id: 5, title: 'DevOps Engineer', dept: 'Engineering', location: 'Austin', apps: 19, status: 'closed', posted: '2025-12-10' },
-];
+interface Job {
+  id: string;
+  title: string;
+  location: string;
+  status: string;
+  created_at: string;
+  skills: string[];
+  experience_level: string;
+  applications: { count: number }[];
+}
 
 export default function AdminJobs() {
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchJobs();
+  }, []);
+
+  async function fetchJobs() {
+    const { data, error } = await supabase
+      .from('jobs')
+      .select('id, title, location, status, created_at, skills, experience_level, applications(count)')
+      .order('created_at', { ascending: false });
+
+    if (!error && data) setJobs(data as any);
+    setLoading(false);
+  }
+
   return (
     <DashboardLayout role="admin">
       <div className="space-y-6">
@@ -19,39 +41,59 @@ export default function AdminJobs() {
           <p className="text-sm text-muted-foreground mt-1">Overview of all job postings across the platform</p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {jobs.map((job, i) => (
-            <motion.div
-              key={job.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.08 }}
-              whileHover={{ y: -4 }}
-              className="rounded-xl border border-border bg-card p-5 shadow-card hover:shadow-glow transition-all duration-300"
-            >
-              <div className="flex items-start justify-between mb-3">
-                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                  <Briefcase size={18} className="text-primary" />
+        {loading ? (
+          <div className="flex items-center justify-center py-20">
+            <Loader2 size={32} className="animate-spin text-primary" />
+          </div>
+        ) : jobs.length === 0 ? (
+          <div className="text-center py-20 text-muted-foreground">
+            <Briefcase size={48} className="mx-auto mb-4 opacity-30" />
+            <p className="text-lg font-medium">No jobs posted yet</p>
+            <p className="text-sm mt-1">Jobs will appear here when recruiters create them</p>
+          </div>
+        ) : (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {jobs.map((job, i) => (
+              <motion.div
+                key={job.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.08 }}
+                whileHover={{ y: -4 }}
+                className="rounded-xl border border-border bg-card p-5 shadow-card hover:shadow-glow transition-all duration-300"
+              >
+                <div className="flex items-start justify-between mb-3">
+                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <Briefcase size={18} className="text-primary" />
+                  </div>
+                  <span className={`px-2 py-1 rounded-md text-xs font-medium capitalize ${
+                    job.status === 'active' ? 'bg-success/10 text-success' :
+                    job.status === 'paused' ? 'bg-warning/10 text-warning' :
+                    'bg-muted text-muted-foreground'
+                  }`}>{job.status}</span>
                 </div>
-                <span className={`px-2 py-1 rounded-md text-xs font-medium capitalize ${
-                  job.status === 'active' ? 'bg-success/10 text-success' :
-                  job.status === 'paused' ? 'bg-warning/10 text-warning' :
-                  'bg-muted text-muted-foreground'
-                }`}>{job.status}</span>
-              </div>
-              <h3 className="font-display font-semibold text-foreground text-sm">{job.title}</h3>
-              <p className="text-xs text-muted-foreground mt-1">{job.dept}</p>
-              <div className="flex items-center gap-4 mt-3 text-xs text-muted-foreground">
-                <span className="flex items-center gap-1"><MapPin size={12} /> {job.location}</span>
-                <span className="flex items-center gap-1"><Clock size={12} /> {job.posted}</span>
-              </div>
-              <div className="flex items-center justify-between mt-4 pt-3 border-t border-border">
-                <span className="text-xs text-foreground font-medium">{job.apps} applicants</span>
-                <button className="text-muted-foreground hover:text-foreground"><MoreHorizontal size={16} /></button>
-              </div>
-            </motion.div>
-          ))}
-        </div>
+                <h3 className="font-display font-semibold text-foreground text-sm">{job.title}</h3>
+                <p className="text-xs text-muted-foreground mt-1 capitalize">{job.experience_level} level</p>
+                <div className="flex items-center gap-4 mt-3 text-xs text-muted-foreground">
+                  <span className="flex items-center gap-1"><MapPin size={12} /> {job.location}</span>
+                  <span className="flex items-center gap-1"><Clock size={12} /> {new Date(job.created_at).toLocaleDateString()}</span>
+                </div>
+                {job.skills.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mt-3">
+                    {job.skills.slice(0, 3).map(s => (
+                      <span key={s} className="px-2 py-0.5 rounded bg-primary/10 text-primary text-[10px] font-medium">{s}</span>
+                    ))}
+                    {job.skills.length > 3 && <span className="text-[10px] text-muted-foreground">+{job.skills.length - 3}</span>}
+                  </div>
+                )}
+                <div className="flex items-center justify-between mt-4 pt-3 border-t border-border">
+                  <span className="text-xs text-foreground font-medium">{job.applications?.[0]?.count || 0} applicants</span>
+                  <button className="text-muted-foreground hover:text-foreground"><MoreHorizontal size={16} /></button>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
       </div>
     </DashboardLayout>
   );
