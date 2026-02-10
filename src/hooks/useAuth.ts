@@ -68,6 +68,17 @@ export function useAuth() {
   }
 
   async function signUp(email: string, password: string, name: string, role: string) {
+    // Check if email already exists in profiles (prevents duplicate accounts across roles)
+    const { data: existingProfile } = await supabase
+      .from('profiles')
+      .select('id, email')
+      .eq('email', email)
+      .maybeSingle();
+
+    if (existingProfile) {
+      return { data: null, error: { message: 'This email is already registered. One email can only have one role. Please sign in instead.' } as any };
+    }
+
     const { data, error } = await supabase.auth.signUp({
       email,
       password,

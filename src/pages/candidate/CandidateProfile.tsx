@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import DashboardLayout from '@/components/DashboardLayout';
 import { motion } from 'framer-motion';
 import { Upload, User, FileText, Award, Plus, X, Loader2 } from 'lucide-react';
@@ -11,7 +11,9 @@ export default function CandidateProfile() {
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [skillInput, setSkillInput] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [form, setForm] = useState({
     name: '',
     email: '',
@@ -20,6 +22,7 @@ export default function CandidateProfile() {
     experience: '',
     resume_skills: [] as string[],
   });
+  const [resumeUrl, setResumeUrl] = useState<string | null>(null);
 
   useEffect(() => {
     if (user?.id) fetchProfile();
@@ -42,6 +45,7 @@ export default function CandidateProfile() {
         experience: data.experience || '',
         resume_skills: data.resume_skills || [],
       });
+      setResumeUrl(data.resume_url || null);
     }
     setLoading(false);
   }
@@ -56,6 +60,54 @@ export default function CandidateProfile() {
 
   function removeSkill(skill: string) {
     setForm({ ...form, resume_skills: form.resume_skills.filter(s => s !== skill) });
+  }
+
+  async function handleResumeUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file || !user?.id) return;
+
+    const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+    if (!allowedTypes.includes(file.type)) {
+      toast.error('Please upload a PDF or Word document');
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error('File size must be less than 10MB');
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const filePath = `${user.id}/${Date.now()}_${file.name}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('resumes')
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadError) {
+        toast.error(uploadError.message);
+        setUploading(false);
+        return;
+      }
+
+      // Save resume_url to profile
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ resume_url: filePath })
+        .eq('user_id', user.id);
+
+      if (updateError) {
+        toast.error(updateError.message);
+      } else {
+        setResumeUrl(filePath);
+        toast.success('Resume uploaded successfully! Add your skills below for AI interview questions.');
+      }
+    } catch (err: any) {
+      toast.error(err.message);
+    } finally {
+      setUploading(false);
+    }
   }
 
   async function saveProfile() {
@@ -171,6 +223,38 @@ export default function CandidateProfile() {
           </motion.div>
 
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="lg:col-span-2 space-y-6">
+            {/* Resume Upload */}
+            <div className="rounded-xl border border-border bg-card p-6 shadow-card">
+              <h3 className="font-display font-semibold text-foreground mb-4 flex items-center gap-2">
+                <FileText size={18} className="text-primary" /> Resume Upload
+              </h3>
+              <p className="text-xs text-muted-foreground mb-3">Upload your resume (PDF or Word). Your skills will be used for AI-generated interview questions.</p>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".pdf,.doc,.docx"
+                onChange={handleResumeUpload}
+                className="hidden"
+              />
+              <div className="flex items-center gap-3">
+                <motion.button
+                  type="button"
+                  whileHover={{ scale: uploading ? 1 : 1.03 }}
+                  whileTap={{ scale: uploading ? 1 : 0.97 }}
+                  disabled={uploading}
+                  onClick={() => fileInputRef.current?.click()}
+                  className="px-4 py-2.5 rounded-lg bg-primary/10 text-primary border border-primary/30 text-sm font-medium flex items-center gap-2 disabled:opacity-60"
+                >
+                  {uploading ? <><Loader2 size={14} className="animate-spin" /> Uploading...</> : <><Upload size={14} /> Upload Resume</>}
+                </motion.button>
+                {resumeUrl && (
+                  <span className="text-xs text-success flex items-center gap-1">
+                    <FileText size={12} /> Resume uploaded
+                  </span>
+                )}
+              </div>
+            </div>
+
             {/* Skills */}
             <div className="rounded-xl border border-border bg-card p-6 shadow-card">
               <h3 className="font-display font-semibold text-foreground mb-4 flex items-center gap-2">

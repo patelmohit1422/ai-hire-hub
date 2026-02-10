@@ -127,7 +127,7 @@ No markdown, no explanation, just the JSON array.`;
             Authorization: `Bearer ${lovableApiKey}`,
           },
           body: JSON.stringify({
-            model: "google/gemini-2.0-flash-001",
+            model: "google/gemini-3-flash-preview",
             messages: [{ role: "user", content: prompt }],
             temperature: 0.7,
           }),
