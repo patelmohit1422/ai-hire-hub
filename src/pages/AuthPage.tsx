@@ -13,7 +13,7 @@ export default function AuthPage() {
   const [role, setRole] = useState<'candidate' | 'recruiter' | 'admin'>('candidate');
   const [form, setForm] = useState({ name: '', email: '', password: '' });
   const [loading, setLoading] = useState(false);
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, role: userRole } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,14 +21,31 @@ export default function AuthPage() {
 
     try {
       if (isLogin) {
-        const { error } = await signIn(form.email, form.password);
+        const { data, error } = await signIn(form.email, form.password);
         if (error) {
           toast.error(error.message);
           setLoading(false);
           return;
         }
         toast.success('Signed in successfully!');
-        navigate(`/${role}`);
+        // Redirect based on actual role from database, not UI selection
+        // The useAuth hook will fetch the role, but we need to wait for it
+        // For now, use a small delay then check, or redirect based on what the user selected
+        // The ProtectedRoute will handle any mismatch
+        // Fetch role for this user immediately
+        const { supabase } = await import('@/integrations/supabase/client');
+        const userId = data?.user?.id;
+        if (userId) {
+          const { data: roleData } = await supabase
+            .from('user_roles')
+            .select('role')
+            .eq('user_id', userId)
+            .maybeSingle();
+          const actualRole = roleData?.role || 'candidate';
+          navigate(`/${actualRole}`);
+        } else {
+          navigate(`/${role}`);
+        }
       } else {
         if (!form.name.trim()) {
           toast.error('Please enter your name');

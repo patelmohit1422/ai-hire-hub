@@ -1,17 +1,91 @@
+import { useState, useEffect } from 'react';
 import DashboardLayout from '@/components/DashboardLayout';
 import { motion } from 'framer-motion';
-import { BarChart3, TrendingUp, PieChart } from 'lucide-react';
+import { BarChart3, TrendingUp, PieChart, Loader2 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 export default function AdminAnalytics() {
-  const monthlyData = [
-    { month: 'Sep', interviews: 120, hires: 15 },
-    { month: 'Oct', interviews: 145, hires: 22 },
-    { month: 'Nov', interviews: 180, hires: 28 },
-    { month: 'Dec', interviews: 165, hires: 25 },
-    { month: 'Jan', interviews: 210, hires: 35 },
-    { month: 'Feb', interviews: 195, hires: 31 },
-  ];
-  const maxInterviews = Math.max(...monthlyData.map(d => d.interviews));
+  const [loading, setLoading] = useState(true);
+  const [monthlyData, setMonthlyData] = useState<{ month: string; interviews: number; hires: number }[]>([]);
+  const [funnel, setFunnel] = useState<{ stage: string; count: number; pct: number }[]>([]);
+  const [kpis, setKpis] = useState({ avgScore: 0, offerAcceptance: 0, totalHires: 0, totalInterviews: 0 });
+
+  useEffect(() => {
+    fetchAnalytics();
+  }, []);
+
+  async function fetchAnalytics() {
+    try {
+      const [appsRes, interviewsRes, scoresRes] = await Promise.all([
+        supabase.from('applications').select('id, status, created_at'),
+        supabase.from('interviews').select('id, status, created_at'),
+        supabase.from('scores').select('total_score, status, created_at'),
+      ]);
+
+      const apps = appsRes.data || [];
+      const interviews = interviewsRes.data || [];
+      const scores = scoresRes.data || [];
+
+      // Hiring funnel
+      const totalApps = apps.length;
+      const interviewed = interviews.filter(i => i.status === 'completed').length;
+      const shortlisted = apps.filter(a => a.status === 'shortlisted').length;
+      const rejected = apps.filter(a => a.status === 'rejected').length;
+      const reviewing = apps.filter(a => a.status === 'review').length;
+
+      setFunnel([
+        { stage: 'Applications', count: totalApps, pct: 100 },
+        { stage: 'Interviewing', count: interviews.length, pct: totalApps > 0 ? Math.round((interviews.length / totalApps) * 100) : 0 },
+        { stage: 'Interviewed', count: interviewed, pct: totalApps > 0 ? Math.round((interviewed / totalApps) * 100) : 0 },
+        { stage: 'Shortlisted', count: shortlisted, pct: totalApps > 0 ? Math.round((shortlisted / totalApps) * 100) : 0 },
+        { stage: 'Under Review', count: reviewing, pct: totalApps > 0 ? Math.round((reviewing / totalApps) * 100) : 0 },
+      ]);
+
+      // Monthly data from interviews
+      const monthMap: Record<string, { interviews: number; hires: number }> = {};
+      interviews.forEach(i => {
+        const d = new Date(i.created_at);
+        const key = d.toLocaleString('default', { month: 'short' });
+        if (!monthMap[key]) monthMap[key] = { interviews: 0, hires: 0 };
+        monthMap[key].interviews++;
+      });
+      apps.filter(a => a.status === 'shortlisted').forEach(a => {
+        const d = new Date(a.created_at);
+        const key = d.toLocaleString('default', { month: 'short' });
+        if (!monthMap[key]) monthMap[key] = { interviews: 0, hires: 0 };
+        monthMap[key].hires++;
+      });
+      const monthlyArr = Object.entries(monthMap).map(([month, data]) => ({ month, ...data }));
+      setMonthlyData(monthlyArr.length > 0 ? monthlyArr : [{ month: 'Current', interviews: interviews.length, hires: shortlisted }]);
+
+      // KPIs
+      const avgScore = scores.length > 0 ? Math.round(scores.reduce((s, sc) => s + Number(sc.total_score), 0) / scores.length) : 0;
+      const offerAcceptance = totalApps > 0 ? Math.round((shortlisted / totalApps) * 100) : 0;
+
+      setKpis({
+        avgScore,
+        offerAcceptance,
+        totalHires: shortlisted,
+        totalInterviews: interviewed,
+      });
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  if (loading) {
+    return (
+      <DashboardLayout role="admin">
+        <div className="flex items-center justify-center py-20">
+          <Loader2 size={32} className="animate-spin text-primary" />
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  const maxInterviews = Math.max(...monthlyData.map(d => d.interviews), 1);
 
   return (
     <DashboardLayout role="admin">
@@ -55,13 +129,7 @@ export default function AdminAnalytics() {
               <PieChart size={18} className="text-primary" /> Hiring Funnel
             </h3>
             <div className="space-y-4">
-              {[
-                { stage: 'Applications', count: 2847, pct: 100 },
-                { stage: 'Resume Screened', count: 1820, pct: 64 },
-                { stage: 'Interviewed', count: 890, pct: 31 },
-                { stage: 'Shortlisted', count: 234, pct: 8 },
-                { stage: 'Hired', count: 89, pct: 3 },
-              ].map((item, i) => (
+              {funnel.map((item, i) => (
                 <div key={item.stage}>
                   <div className="flex justify-between text-sm mb-1">
                     <span className="text-foreground">{item.stage}</span>
@@ -92,10 +160,10 @@ export default function AdminAnalytics() {
           </h3>
           <div className="grid md:grid-cols-4 gap-6">
             {[
-              { label: 'Avg Time to Hire', value: '12 days', sub: '-3 days vs last quarter' },
-              { label: 'Cost per Hire', value: '$420', sub: '-15% vs industry avg' },
-              { label: 'Offer Acceptance', value: '87%', sub: '+5% this quarter' },
-              { label: 'Quality of Hire', value: '4.2/5', sub: 'Based on 6-month reviews' },
+              { label: 'Avg Total Score', value: `${kpis.avgScore}/100`, sub: 'Across all candidates' },
+              { label: 'Total Interviews', value: String(kpis.totalInterviews), sub: 'Completed interviews' },
+              { label: 'Shortlisted', value: String(kpis.totalHires), sub: 'Candidates shortlisted' },
+              { label: 'Shortlist Rate', value: `${kpis.offerAcceptance}%`, sub: 'Of total applications' },
             ].map((kpi) => (
               <div key={kpi.label} className="text-center p-4 rounded-lg bg-muted/50">
                 <p className="text-2xl font-display font-bold text-foreground">{kpi.value}</p>
