@@ -122,20 +122,40 @@ Deno.serve(async (req: Request) => {
         data: { name, role }
     });
 
-  if (inviteError) {
-    console.error("User invite error:", inviteError);
+    if (inviteError) {
+      console.error("User invite error:", inviteError);
 
-    const msg =
-      inviteError.message?.includes("already") ||
-      inviteError.message?.includes("exists")
-        ? "This email address is already registered."
-        : (inviteError.message || "Failed to invite user");
+      const msg =
+        inviteError.message?.includes("already") ||
+        inviteError.message?.includes("exists")
+          ? "This email address is already registered."
+          : (inviteError.message || "Failed to invite user");
 
       return new Response(
         JSON.stringify({ error: msg }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
+    }
+
+    const invitedUserId = inviteData.user.id;
+
+    const { error: roleError } = await serviceClient
+      .from("user_roles")
+      .insert({
+        user_id: invitedUserId,
+        email,
+        role,
+        status: "active",
+      });
+
+  if (roleError) {
+    console.error("Role insert error:", roleError);
+    return new Response(
+      JSON.stringify({ error: "User invited but role assignment failed" }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
   }
+
     // Update profile status if not active
     if (status && status !== "active") {
       await serviceClient
