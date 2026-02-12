@@ -99,9 +99,12 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    // Also check auth.users directly
-    const { data: existingAuthUser } = await serviceClient.auth.admin.listUsers({ filter: email, page: 1, perPage: 1 });
-    if (existingAuthUser?.users?.length > 0) {
+    // Also check auth.users directly (listUsers filter is fuzzy, so we must exact-match)
+    const { data: existingAuthUser } = await serviceClient.auth.admin.listUsers({ page: 1, perPage: 1000 });
+    const exactMatch = existingAuthUser?.users?.find(
+      (u) => u.email?.toLowerCase() === email.toLowerCase()
+    );
+    if (exactMatch) {
       return new Response(
         JSON.stringify({ error: "This email address is already registered in the system." }),
         { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
