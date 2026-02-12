@@ -16,7 +16,7 @@ Deno.serve(async (req: Request) => {
     if (!authHeader) {
       return new Response(
         JSON.stringify({ error: "Unauthorized: Missing Authorization header" }),
-        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
@@ -28,7 +28,7 @@ Deno.serve(async (req: Request) => {
       console.error("SUPABASE_SERVICE_ROLE_KEY is not set");
       return new Response(
         JSON.stringify({ error: "Server configuration error" }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
@@ -44,7 +44,7 @@ Deno.serve(async (req: Request) => {
       console.error("Caller auth error:", callerError);
       return new Response(
         JSON.stringify({ error: "Unauthorized: Invalid token" }),
-        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
@@ -63,14 +63,14 @@ Deno.serve(async (req: Request) => {
       console.error("Role check error:", roleError);
       return new Response(
         JSON.stringify({ error: "Failed to verify permissions" }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
     if (!adminRole) {
       return new Response(
         JSON.stringify({ error: "Forbidden: Only admins can add users" }),
-        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
@@ -81,11 +81,11 @@ Deno.serve(async (req: Request) => {
     if (!name || !email || !role) {
       return new Response(
         JSON.stringify({ error: "Bad Request: name, email, and role are required" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    // Check if email already exists in profiles (one email = one role)
+    // Check if email already exists in auth or profiles
     const { data: existingProfile } = await serviceClient
       .from("profiles")
       .select("id, email")
@@ -95,7 +95,16 @@ Deno.serve(async (req: Request) => {
     if (existingProfile) {
       return new Response(
         JSON.stringify({ error: "This email is already registered. One email can only have one role." }),
-        { status: 409, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Also check auth.users directly
+    const { data: existingAuthUser } = await serviceClient.auth.admin.listUsers({ filter: email, page: 1, perPage: 1 });
+    if (existingAuthUser?.users?.length > 0) {
+      return new Response(
+        JSON.stringify({ error: "This email address is already registered in the system." }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
@@ -114,17 +123,12 @@ Deno.serve(async (req: Request) => {
 
     if (createError) {
       console.error("User creation error:", createError);
-
-      if (createError.message?.includes("already") || createError.message?.includes("exists")) {
-        return new Response(
-          JSON.stringify({ error: "This email address is already registered." }),
-          { status: 409, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
-
+      const msg = createError.message?.includes("already") || createError.message?.includes("exists")
+        ? "This email address is already registered."
+        : (createError.message || "Failed to create user");
       return new Response(
-        JSON.stringify({ error: createError.message || "Failed to create user" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        JSON.stringify({ error: msg }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
@@ -153,7 +157,7 @@ Deno.serve(async (req: Request) => {
     console.error("Unexpected error in admin-add-user:", error);
     return new Response(
       JSON.stringify({ error: "An unexpected server error occurred. Please try again." }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
 });
