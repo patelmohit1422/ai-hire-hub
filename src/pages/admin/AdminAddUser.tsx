@@ -27,7 +27,13 @@ export default function AdminAddUser() {
       });
 
       if (error) {
-        toast.error(error.message || 'Failed to create user');
+        // Try to extract message from response context
+        let msg = 'Failed to create user';
+        try {
+          const ctx = await error.context?.json?.();
+          if (ctx?.error) msg = ctx.error;
+        } catch { /* use default */ }
+        toast.error(msg);
         setLoading(false);
         return;
       }
@@ -38,7 +44,7 @@ export default function AdminAddUser() {
         return;
       }
 
-      toast.success(`User ${form.name} created successfully!`);
+      toast.success(`User ${form.name} created successfully! A confirmation email has been sent.`);
       navigate('/admin/users');
     } catch (err: any) {
       toast.error(err.message || 'An error occurred');
