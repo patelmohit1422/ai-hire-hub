@@ -117,24 +117,25 @@ Deno.serve(async (req: Request) => {
     const userPassword = password || Math.random().toString(36).slice(-12) + "A1!";
 
     // Create user via Supabase Admin Auth API
-    const { data: newUser, error: createError } = await serviceClient.auth.admin.createUser({
-      email,
-      password: userPassword,
-      email_confirm: false,
-      user_metadata: { name, role },
+    const { data: inviteData, error: inviteError } =
+      await serviceClient.auth.admin.inviteUserByEmail(email, {
+        data: { name, role }
     });
 
-    if (createError) {
-      console.error("User creation error:", createError);
-      const msg = createError.message?.includes("already") || createError.message?.includes("exists")
+  if (inviteError) {
+    console.error("User invite error:", inviteError);
+
+    const msg =
+      inviteError.message?.includes("already") ||
+      inviteError.message?.includes("exists")
         ? "This email address is already registered."
-        : (createError.message || "Failed to create user");
+        : (inviteError.message || "Failed to invite user");
+
       return new Response(
         JSON.stringify({ error: msg }),
-        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
-    }
-
+  }
     // Update profile status if not active
     if (status && status !== "active") {
       await serviceClient
