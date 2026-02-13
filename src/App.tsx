@@ -22,6 +22,7 @@ import AdminSettings from "./pages/admin/AdminSettings";
 import RecruiterOverview from "./pages/recruiter/RecruiterOverview";
 import RecruiterJobs from "./pages/recruiter/RecruiterJobs";
 import RecruiterAddJob from "./pages/recruiter/RecruiterAddJob";
+import RecruiterJobDetail from "./pages/recruiter/RecruiterJobDetail";
 import RecruiterApplications from "./pages/recruiter/RecruiterApplications";
 import RecruiterCandidates from "./pages/recruiter/RecruiterCandidates";
 import RecruiterCompare from "./pages/recruiter/RecruiterCompare";
@@ -64,6 +65,7 @@ const App = () => (
           <Route path="/recruiter" element={<ProtectedRoute allowedRole="recruiter"><RecruiterOverview /></ProtectedRoute>} />
           <Route path="/recruiter/jobs" element={<ProtectedRoute allowedRole="recruiter"><RecruiterJobs /></ProtectedRoute>} />
           <Route path="/recruiter/jobs/add" element={<ProtectedRoute allowedRole="recruiter"><RecruiterAddJob /></ProtectedRoute>} />
+          <Route path="/recruiter/jobs/:jobId" element={<ProtectedRoute allowedRole="recruiter"><RecruiterJobDetail /></ProtectedRoute>} />
           <Route path="/recruiter/applications" element={<ProtectedRoute allowedRole="recruiter"><RecruiterApplications /></ProtectedRoute>} />
           <Route path="/recruiter/candidates" element={<ProtectedRoute allowedRole="recruiter"><RecruiterCandidates /></ProtectedRoute>} />
           <Route path="/recruiter/compare" element={<ProtectedRoute allowedRole="recruiter"><RecruiterCompare /></ProtectedRoute>} />
