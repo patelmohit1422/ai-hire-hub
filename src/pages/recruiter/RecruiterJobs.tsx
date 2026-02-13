@@ -184,7 +184,7 @@ export default function RecruiterJobs() {
                 )}
                 <div className="mt-4 pt-3 border-t border-border flex items-center justify-between">
                   <span className="text-sm font-medium text-foreground">{job.applications?.[0]?.count || 0} applicants</span>
-                  <motion.button whileHover={{ scale: 1.05 }} className="text-xs text-primary font-medium">View Details →</motion.button>
+                  <motion.button whileHover={{ scale: 1.05 }} onClick={() => navigate(`/recruiter/jobs/${job.id}`)} className="text-xs text-primary font-medium">View Details →</motion.button>
                 </div>
               </motion.div>
             ))}
