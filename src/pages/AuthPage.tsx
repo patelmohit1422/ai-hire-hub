@@ -10,7 +10,7 @@ export default function AuthPage() {
   const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(searchParams.get('mode') !== 'register');
   const [showPass, setShowPass] = useState(false);
-  const [role, setRole] = useState<'candidate' | 'recruiter' | 'admin'>('candidate');
+  // Only candidates can sign up; role selection removed from UI
   const [form, setForm] = useState({ name: '', email: '', password: '' });
   const [loading, setLoading] = useState(false);
   const { signIn, signUp, role: userRole } = useAuth();
@@ -44,7 +44,7 @@ export default function AuthPage() {
           const actualRole = roleData?.role || 'candidate';
           navigate(`/${actualRole}`);
         } else {
-          navigate(`/${role}`);
+          navigate('/candidate');
         }
       } else {
         if (!form.name.trim()) {
@@ -52,7 +52,7 @@ export default function AuthPage() {
           setLoading(false);
           return;
         }
-        const { error } = await signUp(form.email, form.password, form.name, role);
+        const { error } = await signUp(form.email, form.password, form.name, 'candidate');
         if (error) {
           toast.error(error.message);
           setLoading(false);
@@ -92,29 +92,6 @@ export default function AuthPage() {
         </div>
 
         <div className="rounded-2xl border border-border bg-card p-8 shadow-elevated">
-          <div className="mb-6">
-            <label className="text-xs font-medium text-muted-foreground mb-2 block">
-              {isLogin ? 'Login as' : 'I am a'}
-            </label>
-            <div className="grid grid-cols-3 gap-2">
-              {(['candidate', 'recruiter', 'admin'] as const).map((r) => (
-                <motion.button
-                  key={r}
-                  type="button"
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => setRole(r)}
-                  className={`py-2 rounded-lg text-xs font-medium capitalize transition-all ${
-                    role === r
-                      ? 'bg-primary/10 text-primary border border-primary/30'
-                      : 'bg-muted text-muted-foreground border border-border hover:bg-muted/80'
-                  }`}
-                >
-                  {r}
-                </motion.button>
-              ))}
-            </div>
-          </div>
-
           <form onSubmit={handleSubmit} className="space-y-4">
             {!isLogin && (
               <div>
