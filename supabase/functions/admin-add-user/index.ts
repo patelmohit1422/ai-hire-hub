@@ -139,7 +139,7 @@ Deno.serve(async (req: Request) => {
 
     const invitedUserId = inviteData.user.id;
 
-    const { error: roleError } = await serviceClient
+    const { error: roleInsertError } = await serviceClient
       .from("user_roles")
       .insert({
         user_id: invitedUserId,
@@ -148,32 +148,32 @@ Deno.serve(async (req: Request) => {
         status: "active",
       });
 
-  if (roleError) {
-    console.error("Role insert error:", roleError);
-    return new Response(
-      JSON.stringify({ error: "User invited but role assignment failed" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
-  }
+    if (roleInsertError) {
+      console.error("Role insert error:", roleInsertError);
+      return new Response(
+        JSON.stringify({ error: "User invited but role assignment failed" }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
     // Update profile status if not active
     if (status && status !== "active") {
       await serviceClient
         .from("profiles")
         .update({ status })
-        .eq("user_id", newUser.user.id);
+        .eq("user_id", invitedUserId);
     }
 
-    console.log(`User created successfully: ${newUser.user.id} (${email})`);
+    console.log(`User created successfully: ${invitedUserId} (${email})`);
 
     return new Response(
       JSON.stringify({
-        user_id: newUser.user.id,
-        email: newUser.user.email,
+        user_id: invitedUserId,
+        email,
         name,
         role,
         status: status || "active",
-        message: "User created successfully",
+        message: "User created successfully. A confirmation email has been sent.",
       }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
