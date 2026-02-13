@@ -117,63 +117,52 @@ Deno.serve(async (req: Request) => {
     const userPassword = password || Math.random().toString(36).slice(-12) + "A1!";
 
     // Create user via Supabase Admin Auth API
-    const { data: inviteData, error: inviteError } =
-      await serviceClient.auth.admin.inviteUserByEmail(email, {
-        data: { name, role }
-    });
+    const { data: createData, error: createError } =
+      await serviceClient.auth.admin.createUser({
+        email,
+        password: userPassword,
+        email_confirm: false, // User must confirm via email
+        user_metadata: { name, role },
+      });
 
-    if (inviteError) {
-      console.error("User invite error:", inviteError);
+    if (createError) {
+      console.error("User create error:", createError);
 
       const msg =
-        inviteError.message?.includes("already") ||
-        inviteError.message?.includes("exists")
+        createError.message?.includes("already") ||
+        createError.message?.includes("exists")
           ? "This email address is already registered."
-          : (inviteError.message || "Failed to invite user");
+          : (createError.message || "Failed to create user");
 
       return new Response(
         JSON.stringify({ error: msg }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    const invitedUserId = inviteData.user.id;
-
-    const { error: roleInsertError } = await serviceClient
-      .from("user_roles")
-      .insert({
-        user_id: invitedUserId,
-        email,
-        role,
-        status: "active",
-      });
-
-    if (roleInsertError) {
-      console.error("Role insert error:", roleInsertError);
-      return new Response(
-        JSON.stringify({ error: "User invited but role assignment failed" }),
         { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
+
+    const newUserId = createData.user.id;
+
+    // Role is auto-assigned by handle_new_user trigger, but verify
+    console.log(`User created: ${newUserId} (${email}), role assigned via trigger`);
 
     // Update profile status if not active
     if (status && status !== "active") {
       await serviceClient
         .from("profiles")
         .update({ status })
-        .eq("user_id", invitedUserId);
+        .eq("user_id", newUserId);
     }
 
-    console.log(`User created successfully: ${invitedUserId} (${email})`);
+    console.log(`User created successfully: ${newUserId} (${email})`);
 
     return new Response(
       JSON.stringify({
-        user_id: invitedUserId,
+        user_id: newUserId,
         email,
         name,
         role,
         status: status || "active",
-        message: "User created successfully. A confirmation email has been sent.",
+        message: "User created successfully. They must confirm their email before logging in.",
       }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
