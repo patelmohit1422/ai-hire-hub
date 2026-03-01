@@ -2,11 +2,25 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import DashboardLayout from '@/components/DashboardLayout';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Briefcase, MapPin, DollarSign, Clock, Calendar, Users, Pencil, Trash2, Loader2, X, Plus } from 'lucide-react';
+import { ArrowLeft, Briefcase, MapPin, DollarSign, Clock, Calendar, Users, Pencil, Trash2, Loader2, X, Plus, Mail, User } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+
+interface Applicant {
+  id: string;
+  status: string;
+  created_at: string;
+  candidate: {
+    id: string;
+    name: string;
+    email: string;
+    location: string | null;
+    title: string | null;
+    resume_skills: string[] | null;
+  };
+}
 
 interface JobDetail {
   id: string;
@@ -34,6 +48,8 @@ export default function RecruiterJobDetail() {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [skillInput, setSkillInput] = useState('');
+  const [applicants, setApplicants] = useState<Applicant[]>([]);
+  const [loadingApplicants, setLoadingApplicants] = useState(false);
   const [form, setForm] = useState({
     title: '',
     description: '',
@@ -47,8 +63,34 @@ export default function RecruiterJobDetail() {
   });
 
   useEffect(() => {
-    if (jobId) fetchJob();
+    if (jobId) {
+      fetchJob();
+      fetchApplicants();
+    }
   }, [jobId]);
+
+  async function fetchApplicants() {
+    setLoadingApplicants(true);
+    const { data, error } = await supabase
+      .from('applications')
+      .select('id, status, created_at, candidate:profiles!applications_candidate_id_fkey(id, name, email, location, title, resume_skills)')
+      .eq('job_id', jobId!);
+
+    if (!error && data) {
+      setApplicants(data.map((a: any) => ({ ...a, candidate: a.candidate })));
+    }
+    setLoadingApplicants(false);
+  }
+
+  async function updateApplicationStatus(appId: string, newStatus: string) {
+    const { error } = await supabase.from('applications').update({ status: newStatus }).eq('id', appId);
+    if (error) {
+      toast.error(error.message);
+    } else {
+      toast.success(`Status updated to ${newStatus}`);
+      setApplicants(prev => prev.map(a => a.id === appId ? { ...a, status: newStatus } : a));
+    }
+  }
 
   async function fetchJob() {
     setLoading(true);
@@ -335,6 +377,65 @@ export default function RecruiterJobDetail() {
                 </div>
               </div>
             )}
+
+            {/* Applicants */}
+            <div className="rounded-xl border border-border bg-card p-6 shadow-card">
+              <h3 className="text-sm font-display font-semibold text-foreground mb-4 flex items-center gap-2">
+                <Users size={16} className="text-primary" /> Applicants ({applicants.length})
+              </h3>
+              {loadingApplicants ? (
+                <div className="flex justify-center py-8">
+                  <Loader2 size={24} className="animate-spin text-primary" />
+                </div>
+              ) : applicants.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-8">No applicants yet.</p>
+              ) : (
+                <div className="space-y-3">
+                  {applicants.map(app => (
+                    <div key={app.id} className="flex items-center justify-between p-4 rounded-lg border border-border bg-muted/30 hover:bg-muted/50 transition-colors">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                          <User size={18} className="text-primary" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold text-foreground">{app.candidate?.name || 'Unknown'}</p>
+                          <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                            <span className="flex items-center gap-1"><Mail size={10} /> {app.candidate?.email}</span>
+                            {app.candidate?.location && <span className="flex items-center gap-1"><MapPin size={10} /> {app.candidate.location}</span>}
+                          </div>
+                          {app.candidate?.resume_skills && app.candidate.resume_skills.length > 0 && (
+                            <div className="flex flex-wrap gap-1 mt-1.5">
+                              {app.candidate.resume_skills.slice(0, 3).map(s => (
+                                <span key={s} className="px-2 py-0.5 rounded bg-primary/10 text-primary text-[10px] font-medium">{s}</span>
+                              ))}
+                              {app.candidate.resume_skills.length > 3 && <span className="text-[10px] text-muted-foreground">+{app.candidate.resume_skills.length - 3}</span>}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <select
+                          value={app.status}
+                          onChange={e => updateApplicationStatus(app.id, e.target.value)}
+                          className={`px-3 py-1.5 rounded-lg border border-border text-xs font-medium focus:outline-none focus:ring-2 focus:ring-primary/40 bg-muted text-foreground ${
+                            app.status === 'shortlisted' ? 'border-primary/40' :
+                            app.status === 'rejected' ? 'border-destructive/40' :
+                            app.status === 'interviewing' ? 'border-info/40' : ''
+                          }`}
+                        >
+                          <option value="pending">Pending</option>
+                          <option value="review">Review</option>
+                          <option value="shortlisted">Shortlisted</option>
+                          <option value="interviewing">Interviewing</option>
+                          <option value="rejected">Rejected</option>
+                          <option value="hired">Hired</option>
+                        </select>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
 
             {/* Meta */}
             <div className="text-xs text-muted-foreground pt-2">
