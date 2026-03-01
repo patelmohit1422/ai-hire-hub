@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Brain, Shield, BarChart3, Users, Zap, Clock } from 'lucide-react';
+import { ArrowRight, Brain, Shield, BarChart3, Users, Zap, Clock, CheckCircle2, Star, FileText, MessageSquare, Award } from 'lucide-react';
 import HeroScene from '@/components/HeroScene';
 
 const features = [
@@ -17,6 +17,19 @@ const stats = [
   { value: '95%', label: 'Accuracy Rate' },
   { value: '70%', label: 'Time Saved' },
   { value: '500+', label: 'Companies Trust Us' },
+];
+
+const steps = [
+  { icon: <FileText size={28} />, step: '01', title: 'Post a Job', desc: 'Define the role, skills required, and evaluation criteria in minutes.' },
+  { icon: <Users size={28} />, step: '02', title: 'Candidates Apply', desc: 'Applicants submit their resumes and complete AI-powered interviews.' },
+  { icon: <MessageSquare size={28} />, step: '03', title: 'AI Evaluates', desc: 'Our AI scores candidates based on resume match and interview responses.' },
+  { icon: <Award size={28} />, step: '04', title: 'Hire the Best', desc: 'Compare scores, review insights, and make confident hiring decisions.' },
+];
+
+const testimonials = [
+  { name: 'Priya Sharma', role: 'HR Director, TechNova', quote: 'HireAI reduced our screening time by 65%. The AI interviews are remarkably accurate at identifying top talent.' },
+  { name: 'Rahul Mehta', role: 'CTO, CloudStack', quote: 'The bias reduction features give us confidence that we\'re evaluating candidates fairly and objectively.' },
+  { name: 'Ananya Desai', role: 'Talent Lead, ScaleUp', quote: 'Finally, a hiring tool that actually understands technical roles. The scoring system is incredibly insightful.' },
 ];
 
 export default function LandingPage() {
@@ -37,6 +50,8 @@ export default function LandingPage() {
             <span className="font-display font-bold text-lg text-foreground">HireAI</span>
           </Link>
           <div className="hidden md:flex items-center gap-8">
+            <a href="#features" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Features</a>
+            <a href="#how-it-works" className="text-sm text-muted-foreground hover:text-foreground transition-colors">How It Works</a>
             <Link to="/pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Pricing</Link>
             <Link to="/auth" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Login</Link>
             <Link to="/auth?mode=register">
@@ -92,6 +107,12 @@ export default function LandingPage() {
                 </motion.button>
               </Link>
             </div>
+            {/* Trust badges */}
+            <div className="mt-12 flex items-center justify-center gap-6 text-muted-foreground">
+              <div className="flex items-center gap-1.5 text-xs"><CheckCircle2 size={14} className="text-primary" /> No credit card required</div>
+              <div className="flex items-center gap-1.5 text-xs"><CheckCircle2 size={14} className="text-primary" /> 14-day free trial</div>
+              <div className="flex items-center gap-1.5 text-xs"><CheckCircle2 size={14} className="text-primary" /> Cancel anytime</div>
+            </div>
           </motion.div>
         </div>
       </section>
@@ -116,7 +137,7 @@ export default function LandingPage() {
       </section>
 
       {/* Features */}
-      <section className="py-24 px-6">
+      <section id="features" className="py-24 px-6">
         <div className="max-w-6xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -124,6 +145,7 @@ export default function LandingPage() {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
+            <span className="inline-block px-3 py-1 rounded-full text-xs font-medium bg-accent/10 text-accent border border-accent/20 mb-4">Features</span>
             <h2 className="text-3xl md:text-4xl font-display font-bold text-foreground mb-4">
               Powerful Features for Modern Hiring
             </h2>
@@ -153,8 +175,128 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Role CTAs */}
+      {/* How It Works */}
+      <section id="how-it-works" className="py-24 px-6 bg-gradient-hero">
+        <div className="max-w-6xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <span className="inline-block px-3 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary border border-primary/20 mb-4">Process</span>
+            <h2 className="text-3xl md:text-4xl font-display font-bold text-foreground mb-4">
+              How It Works
+            </h2>
+            <p className="text-muted-foreground max-w-xl mx-auto">
+              Get started in four simple steps. From job posting to making your hire.
+            </p>
+          </motion.div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {steps.map((s, i) => (
+              <motion.div
+                key={s.step}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.12 }}
+                className="relative rounded-xl border border-border bg-card p-6 shadow-card text-center group"
+              >
+                <div className="text-5xl font-display font-bold text-primary/10 absolute top-3 right-4">{s.step}</div>
+                <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center text-primary mx-auto mb-4 group-hover:shadow-glow transition-shadow">
+                  {s.icon}
+                </div>
+                <h3 className="font-display font-semibold text-foreground mb-2">{s.title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{s.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials */}
+      <section className="py-24 px-6">
+        <div className="max-w-6xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <span className="inline-block px-3 py-1 rounded-full text-xs font-medium bg-accent/10 text-accent border border-accent/20 mb-4">Testimonials</span>
+            <h2 className="text-3xl md:text-4xl font-display font-bold text-foreground mb-4">
+              Loved by Hiring Teams
+            </h2>
+            <p className="text-muted-foreground max-w-xl mx-auto">
+              See what industry leaders say about transforming their hiring with HireAI.
+            </p>
+          </motion.div>
+          <div className="grid md:grid-cols-3 gap-6">
+            {testimonials.map((t, i) => (
+              <motion.div
+                key={t.name}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+                className="rounded-xl border border-border bg-card p-6 shadow-card"
+              >
+                <div className="flex gap-1 mb-4">
+                  {[...Array(5)].map((_, j) => (
+                    <Star key={j} size={14} className="text-warning fill-warning" />
+                  ))}
+                </div>
+                <p className="text-sm text-muted-foreground leading-relaxed mb-5 italic">"{t.quote}"</p>
+                <div>
+                  <p className="text-sm font-semibold text-foreground">{t.name}</p>
+                  <p className="text-xs text-muted-foreground">{t.role}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA */}
       <section className="py-24 px-6 bg-gradient-hero">
+        <div className="max-w-3xl mx-auto text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <h2 className="text-3xl md:text-5xl font-display font-bold text-foreground mb-6">
+              Ready to Transform Your Hiring?
+            </h2>
+            <p className="text-muted-foreground text-lg mb-10 max-w-xl mx-auto">
+              Join 500+ companies already making smarter, faster, and fairer hiring decisions with HireAI.
+            </p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Link to="/auth?mode=register">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="px-8 py-3.5 rounded-xl bg-gradient-primary text-primary-foreground font-semibold shadow-glow flex items-center gap-2"
+                >
+                  Get Started for Free <ArrowRight size={18} />
+                </motion.button>
+              </Link>
+              <Link to="/pricing">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="px-8 py-3.5 rounded-xl border border-border text-foreground font-semibold hover:bg-muted transition-colors"
+                >
+                  See Plans & Pricing
+                </motion.button>
+              </Link>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Role CTAs */}
+      <section className="py-24 px-6">
         <div className="max-w-6xl mx-auto">
           <motion.h2
             initial={{ opacity: 0 }}
@@ -166,9 +308,9 @@ export default function LandingPage() {
           </motion.h2>
           <div className="grid md:grid-cols-3 gap-6">
             {[
-              { role: 'Candidate', path: '/candidate', desc: 'Apply to jobs, take AI interviews, and track your progress.', color: 'primary' },
-              { role: 'Recruiter', path: '/recruiter', desc: 'Post jobs, review candidates, and make data-driven decisions.', color: 'accent' },
-              { role: 'Admin', path: '/admin', desc: 'Manage users, configure scoring rules, and view analytics.', color: 'info' },
+              { role: 'Candidate', path: '/candidate', desc: 'Apply to jobs, take AI interviews, and track your progress.' },
+              { role: 'Recruiter', path: '/recruiter', desc: 'Post jobs, review candidates, and make data-driven decisions.' },
+              { role: 'Admin', path: '/admin', desc: 'Manage users, configure scoring rules, and view analytics.' },
             ].map((item, i) => (
               <motion.div
                 key={item.role}
