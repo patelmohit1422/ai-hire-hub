@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
-import { Check, Brain, ArrowRight } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Check, Brain, ArrowRight, ArrowLeft } from 'lucide-react';
+import ThemeToggle from '@/components/ThemeToggle';
 
 const plans = [
   {
@@ -33,6 +34,7 @@ const plans = [
 ];
 
 export default function PricingPage() {
+  const navigate = useNavigate();
   return (
     <div className="min-h-screen bg-gradient-hero py-24 px-6">
       <div className="max-w-6xl mx-auto">
@@ -43,13 +45,26 @@ export default function PricingPage() {
           className="fixed top-0 left-0 right-0 z-50 glass-strong"
         >
           <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-            <Link to="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-gradient-primary flex items-center justify-center">
-                <Brain size={18} className="text-primary-foreground" />
-              </div>
-              <span className="font-display font-bold text-lg text-foreground">HireAI</span>
-            </Link>
-            <Link to="/auth" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Login</Link>
+            <div className="flex items-center gap-3">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => navigate(-1)}
+                className="p-2 rounded-lg border border-border hover:bg-muted transition-colors"
+              >
+                <ArrowLeft size={16} className="text-muted-foreground" />
+              </motion.button>
+              <Link to="/" className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-gradient-primary flex items-center justify-center">
+                  <Brain size={18} className="text-primary-foreground" />
+                </div>
+                <span className="font-display font-bold text-lg text-foreground">HireAI</span>
+              </Link>
+            </div>
+            <div className="flex items-center gap-3">
+              <ThemeToggle />
+              <Link to="/auth" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Login</Link>
+            </div>
           </div>
         </motion.nav>
 

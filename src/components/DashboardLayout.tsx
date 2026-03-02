@@ -8,6 +8,7 @@ import {
   UserCheck, GitCompare, ClipboardList, MessageSquare, Award,
   Upload, Search, PlayCircle, TrendingUp, Bell, ChevronLeft, LogOut, Shield
 } from 'lucide-react';
+import ThemeToggle from '@/components/ThemeToggle';
 
 interface SidebarItem {
   label: string;
@@ -121,6 +122,10 @@ export default function DashboardLayout({ role, children }: DashboardLayoutProps
         </nav>
 
         <div className="p-3 border-t border-border space-y-1">
+          <div className="flex items-center justify-between px-3 py-2">
+            <span className="text-xs text-muted-foreground">Theme</span>
+            <ThemeToggle />
+          </div>
           <NavLink
             to="/"
             className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-all"

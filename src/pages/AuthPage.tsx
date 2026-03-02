@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
-import { Brain, Mail, Lock, User, ArrowRight, Eye, EyeOff, Loader2 } from 'lucide-react';
+import { Brain, Mail, Lock, User, ArrowRight, Eye, EyeOff, Loader2, ArrowLeft } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
+import ThemeToggle from '@/components/ThemeToggle';
 
 export default function AuthPage() {
   const [searchParams] = useSearchParams();
@@ -77,12 +78,23 @@ export default function AuthPage() {
         className="w-full max-w-md"
       >
         <div className="text-center mb-8">
-          <Link to="/" className="inline-flex items-center gap-2 mb-6">
-            <div className="w-10 h-10 rounded-xl bg-gradient-primary flex items-center justify-center">
-              <Brain size={22} className="text-primary-foreground" />
-            </div>
-            <span className="font-display font-bold text-xl text-foreground">HireAI</span>
-          </Link>
+          <div className="flex items-center justify-between mb-6">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => navigate('/')}
+              className="p-2 rounded-lg border border-border hover:bg-muted transition-colors"
+            >
+              <ArrowLeft size={16} className="text-muted-foreground" />
+            </motion.button>
+            <Link to="/" className="inline-flex items-center gap-2">
+              <div className="w-10 h-10 rounded-xl bg-gradient-primary flex items-center justify-center">
+                <Brain size={22} className="text-primary-foreground" />
+              </div>
+              <span className="font-display font-bold text-xl text-foreground">HireAI</span>
+            </Link>
+            <ThemeToggle />
+          </div>
           <h1 className="text-2xl font-display font-bold text-foreground">
             {isLogin ? 'Welcome Back' : 'Create Account'}
           </h1>
