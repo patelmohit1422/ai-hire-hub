@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Brain, Shield, BarChart3, Users, Zap, Clock, CheckCircle2, Star, FileText, MessageSquare, Award } from 'lucide-react';
 import HeroScene from '@/components/HeroScene';
+import ThemeToggle from '@/components/ThemeToggle';
 
 const features = [
   { icon: <Brain size={24} />, title: 'AI Resume Parsing', desc: 'Extract skills, experience, and education automatically from any resume format.' },
@@ -54,6 +55,7 @@ export default function LandingPage() {
             <a href="#how-it-works" className="text-sm text-muted-foreground hover:text-foreground transition-colors">How It Works</a>
             <Link to="/pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Pricing</Link>
             <Link to="/auth" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Login</Link>
+            <ThemeToggle />
             <Link to="/auth?mode=register">
               <motion.button
                 whileHover={{ scale: 1.05 }}
