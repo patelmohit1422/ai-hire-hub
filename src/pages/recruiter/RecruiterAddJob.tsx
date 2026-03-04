@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DashboardLayout from '@/components/DashboardLayout';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Briefcase, MapPin, DollarSign, Plus, X, Loader2 } from 'lucide-react';
+import { ArrowLeft, Briefcase, MapPin, IndianRupee, Plus, X, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
@@ -176,12 +176,12 @@ export default function RecruiterAddJob() {
             <div>
               <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Salary Range</label>
               <div className="relative">
-                <DollarSign size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <IndianRupee size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
                 <input
                   type="text"
                   value={form.salary_range}
                   onChange={(e) => setForm({ ...form, salary_range: e.target.value })}
-                  placeholder="$100k-$140k"
+                  placeholder="₹10L-₹14L"
                   className="w-full pl-10 pr-4 py-2.5 rounded-lg bg-muted border border-border text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
                 />
               </div>

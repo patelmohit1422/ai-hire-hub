@@ -91,7 +91,7 @@ export default function HeroScene() {
       
       {/* Radial gradient overlay */}
       <div className="absolute inset-0" style={{
-        background: 'radial-gradient(ellipse 80% 60% at 50% 50%, transparent, hsl(220 20% 4%))',
+        background: 'radial-gradient(ellipse 80% 60% at 50% 50%, transparent, hsl(var(--background)))',
       }} />
     </div>
   );

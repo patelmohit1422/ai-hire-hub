@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import DashboardLayout from '@/components/DashboardLayout';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Briefcase, MapPin, DollarSign, Clock, Calendar, Users, Pencil, Trash2, Loader2, X, Plus, Mail, User } from 'lucide-react';
+import { ArrowLeft, Briefcase, MapPin, IndianRupee, Clock, Calendar, Users, Pencil, Trash2, Loader2, X, Plus, Mail, User } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
@@ -330,7 +330,7 @@ export default function RecruiterJobDetail() {
                   <span>{job.location || 'Not specified'}</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <DollarSign size={14} className="text-primary" />
+                  <IndianRupee size={14} className="text-primary" />
                   <span>{job.salary_range || 'Not specified'}</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">

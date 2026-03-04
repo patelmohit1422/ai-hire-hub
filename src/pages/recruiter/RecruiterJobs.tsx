@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DashboardLayout from '@/components/DashboardLayout';
 import { motion } from 'framer-motion';
-import { Briefcase, Plus, MapPin, DollarSign, Clock, Loader2, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
+import { Briefcase, Plus, MapPin, IndianRupee, Clock, Loader2, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
@@ -171,7 +171,7 @@ export default function RecruiterJobs() {
                 </div>
                 <div className="space-y-2 text-xs text-muted-foreground">
                   <div className="flex items-center gap-1"><MapPin size={12} /> {job.location}</div>
-                  {job.salary_range && <div className="flex items-center gap-1"><DollarSign size={12} /> {job.salary_range}</div>}
+                  {job.salary_range && <div className="flex items-center gap-1"><IndianRupee size={12} /> {job.salary_range}</div>}
                   {job.deadline && <div className="flex items-center gap-1"><Clock size={12} /> Deadline: {new Date(job.deadline).toLocaleDateString()}</div>}
                 </div>
                 {job.skills.length > 0 && (
