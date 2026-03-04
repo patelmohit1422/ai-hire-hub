@@ -6,7 +6,7 @@ import ThemeToggle from '@/components/ThemeToggle';
 const plans = [
   {
     name: 'Free',
-    price: '$0',
+    price: '₹0',
     period: 'forever',
     desc: 'Perfect for trying out the platform',
     features: ['5 AI Interviews/month', 'Basic Resume Parsing', 'Email Support', '1 Job Posting', 'Basic Analytics'],
@@ -15,7 +15,7 @@ const plans = [
   },
   {
     name: 'Pro',
-    price: '$49',
+    price: '₹3,999',
     period: '/month',
     desc: 'For growing teams and recruiters',
     features: ['Unlimited Interviews', 'Advanced Resume AI', 'Priority Support', '25 Job Postings', 'Full Analytics & Reports', 'Candidate Comparison', 'Team Collaboration'],

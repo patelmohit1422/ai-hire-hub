@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import DashboardLayout from '@/components/DashboardLayout';
 import { motion } from 'framer-motion';
-import { Search, MapPin, DollarSign, Clock, Briefcase, Loader2, CheckCircle } from 'lucide-react';
+import { Search, MapPin, IndianRupee, Clock, Briefcase, Loader2, CheckCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
@@ -144,7 +144,7 @@ export default function CandidateJobs() {
                       <p className="text-xs text-muted-foreground capitalize">{job.experience_level} level</p>
                       <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
                         <span className="flex items-center gap-1"><MapPin size={10} /> {job.location}</span>
-                        {job.salary_range && <span className="flex items-center gap-1"><DollarSign size={10} /> {job.salary_range}</span>}
+                        {job.salary_range && <span className="flex items-center gap-1"><IndianRupee size={10} /> {job.salary_range}</span>}
                         <span className="flex items-center gap-1"><Clock size={10} /> {job.job_type}</span>
                       </div>
                       {job.skills.length > 0 && (
