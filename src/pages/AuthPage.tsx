@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { Brain, Mail, Lock, User, ArrowRight, Eye, EyeOff, Loader2, ArrowLeft } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import ThemeToggle from '@/components/ThemeToggle';
 
@@ -29,12 +30,7 @@ export default function AuthPage() {
           return;
         }
         toast.success('Signed in successfully!');
-        // Redirect based on actual role from database, not UI selection
-        // The useAuth hook will fetch the role, but we need to wait for it
-        // For now, use a small delay then check, or redirect based on what the user selected
-        // The ProtectedRoute will handle any mismatch
         // Fetch role for this user immediately
-        const { supabase } = await import('@/integrations/supabase/client');
         const userId = data?.user?.id;
         if (userId) {
           const { data: roleData } = await supabase
