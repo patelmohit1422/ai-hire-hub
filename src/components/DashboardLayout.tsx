@@ -98,7 +98,7 @@ export default function DashboardLayout({ role, children }: DashboardLayoutProps
               {roleIcon}
             </div>
             <div>
-              <h2 className="font-display font-semibold text-sm text-foreground">{config.title}</h2>
+              <h2 className="font-display font-semibold text-sm text-foreground">{userName || config.title}</h2>
               <p className="text-xs text-muted-foreground capitalize">{role}</p>
             </div>
           </div>
