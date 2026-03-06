@@ -64,6 +64,16 @@ export default function DashboardLayout({ role, children }: DashboardLayoutProps
   const location = useLocation();
   const navigate = useNavigate();
   const config = sidebarConfigs[role];
+  const [userName, setUserName] = useState('');
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        supabase.from('profiles').select('name').eq('user_id', session.user.id).maybeSingle()
+          .then(({ data }) => { if (data?.name) setUserName(data.name); });
+      }
+    });
+  }, []);
 
   const roleIcon = role === 'admin' ? <Shield size={20} /> : role === 'recruiter' ? <Briefcase size={20} /> : <Users size={20} />;
 
