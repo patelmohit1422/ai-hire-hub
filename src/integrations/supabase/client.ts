@@ -5,13 +5,33 @@ import type { Database } from './types';
 const SUPABASE_URL = "https://dtkoenqyxptijpacpxdk.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR0a29lbnF5eHB0aWpwYWNweGRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA1ODA4NTUsImV4cCI6MjA4NjE1Njg1NX0.GkpI9vD04OgSwl9LvGdUEi8-OHVojbiFzlbcO8Y9LDA";
 
+// Retry-capable fetch to handle intermittent "Failed to fetch" errors
+const fetchWithRetry = async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
+  const maxRetries = 3;
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      const response = await fetch(input, init);
+      return response;
+    } catch (error) {
+      if (attempt === maxRetries - 1) throw error;
+      // Wait before retrying (200ms, 600ms)
+      await new Promise(resolve => setTimeout(resolve, 200 * (attempt + 1)));
+    }
+  }
+  // Should never reach here, but TypeScript needs it
+  throw new Error('Failed to fetch after retries');
+};
+
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth: {
-    storage: localStorage,
     persistSession: true,
     autoRefreshToken: true,
-  }
+    detectSessionInUrl: true,
+  },
+  global: {
+    fetch: fetchWithRetry,
+  },
 });

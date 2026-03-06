@@ -25,12 +25,14 @@ export default function AuthPage() {
       if (isLogin) {
         const { data, error } = await signIn(form.email, form.password);
         if (error) {
-          toast.error(error.message);
+          const msg = error.message?.includes('fetch')
+            ? 'Network error. Please check your connection and try again.'
+            : error.message;
+          toast.error(msg);
           setLoading(false);
           return;
         }
         toast.success('Signed in successfully!');
-        // Fetch role for this user immediately
         const userId = data?.user?.id;
         if (userId) {
           const { data: roleData } = await supabase
@@ -51,7 +53,10 @@ export default function AuthPage() {
         }
         const { error } = await signUp(form.email, form.password, form.name, 'candidate');
         if (error) {
-          toast.error(error.message);
+          const msg = error.message?.includes('fetch')
+            ? 'Network error. Please check your connection and try again.'
+            : error.message;
+          toast.error(msg);
           setLoading(false);
           return;
         }
@@ -59,7 +64,10 @@ export default function AuthPage() {
         setIsLogin(true);
       }
     } catch (err: any) {
-      toast.error(err.message || 'An error occurred');
+      const msg = err.message?.includes('fetch')
+        ? 'Network error. Please check your connection and try again.'
+        : (err.message || 'An error occurred');
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
