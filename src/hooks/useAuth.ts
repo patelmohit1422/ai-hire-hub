@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import type { User } from '@supabase/supabase-js';
 
+const SUPABASE_URL = "https://dtkoenqyxptijpacpxdk.supabase.co";
+
 interface AuthState {
   user: User | null;
   profile: any | null;
@@ -42,14 +44,12 @@ export function useAuth() {
 
   async function fetchUserData(user: User) {
     try {
-      // Fetch profile
       const { data: profile } = await supabase
         .from('profiles')
         .select('*')
         .eq('user_id', user.id)
         .maybeSingle();
 
-      // Fetch role
       const { data: roleData } = await supabase
         .from('user_roles')
         .select('role')
@@ -69,27 +69,59 @@ export function useAuth() {
   }
 
   async function signUp(email: string, password: string, name: string, role: string) {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: { name, role },
-      },
-    });
-    if (error) return { data, error };
-    // Supabase returns a user with no identities if the email already exists
-    if (data?.user && data.user.identities && data.user.identities.length === 0) {
-      return { data: null, error: { message: 'This email is already registered. Please sign in instead.' } as any };
+    try {
+      const response = await fetch(`${SUPABASE_URL}/functions/v1/auth-proxy`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, name, role, action: 'signup' }),
+      });
+
+      const result = await response.json();
+
+      if (result.error) {
+        return { data: null, error: { message: result.error } as any };
+      }
+
+      // If we got a session back, set it in the Supabase client
+      if (result.session) {
+        await supabase.auth.setSession({
+          access_token: result.session.access_token,
+          refresh_token: result.session.refresh_token,
+        });
+      }
+
+      return { data: { user: result.user }, error: null };
+    } catch (err: any) {
+      return { data: null, error: { message: 'Network error. Please check your connection and try again.' } as any };
     }
-    return { data, error };
   }
 
   async function signIn(email: string, password: string) {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    return { data, error };
+    try {
+      const response = await fetch(`${SUPABASE_URL}/functions/v1/auth-proxy`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, action: 'signin' }),
+      });
+
+      const result = await response.json();
+
+      if (result.error) {
+        return { data: null, error: { message: result.error } as any };
+      }
+
+      // Set the session in the Supabase client
+      if (result.session) {
+        await supabase.auth.setSession({
+          access_token: result.session.access_token,
+          refresh_token: result.session.refresh_token,
+        });
+      }
+
+      return { data: { user: result.session?.user || result.user }, error: null };
+    } catch (err: any) {
+      return { data: null, error: { message: 'Network error. Please check your connection and try again.' } as any };
+    }
   }
 
   async function signOut() {
