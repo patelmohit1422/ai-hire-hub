@@ -25,10 +25,7 @@ export default function AuthPage() {
       if (isLogin) {
         const { data, error } = await signIn(form.email, form.password);
         if (error) {
-          const msg = error.message?.includes('fetch')
-            ? 'Network error. Please check your connection and try again.'
-            : error.message;
-          toast.error(msg);
+          toast.error(error.message);
           setLoading(false);
           return;
         }
