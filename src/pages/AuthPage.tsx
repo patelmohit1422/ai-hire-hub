@@ -25,10 +25,7 @@ export default function AuthPage() {
       if (isLogin) {
         const { data, error } = await signIn(form.email, form.password);
         if (error) {
-          const msg = error.message?.includes('fetch')
-            ? 'Network error. Please check your connection and try again.'
-            : error.message;
-          toast.error(msg);
+          toast.error(error.message);
           setLoading(false);
           return;
         }
@@ -53,10 +50,7 @@ export default function AuthPage() {
         }
         const { error } = await signUp(form.email, form.password, form.name, 'candidate');
         if (error) {
-          const msg = error.message?.includes('fetch')
-            ? 'Network error. Please check your connection and try again.'
-            : error.message;
-          toast.error(msg);
+          toast.error(error.message);
           setLoading(false);
           return;
         }
@@ -64,10 +58,7 @@ export default function AuthPage() {
         setIsLogin(true);
       }
     } catch (err: any) {
-      const msg = err.message?.includes('fetch')
-        ? 'Network error. Please check your connection and try again.'
-        : (err.message || 'An error occurred');
-      toast.error(msg);
+      toast.error(err.message || 'An error occurred');
     } finally {
       setLoading(false);
     }
