@@ -50,10 +50,7 @@ export default function AuthPage() {
         }
         const { error } = await signUp(form.email, form.password, form.name, 'candidate');
         if (error) {
-          const msg = error.message?.includes('fetch')
-            ? 'Network error. Please check your connection and try again.'
-            : error.message;
-          toast.error(msg);
+          toast.error(error.message);
           setLoading(false);
           return;
         }
