@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { ReactNode, useState, useEffect } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
@@ -64,6 +64,16 @@ export default function DashboardLayout({ role, children }: DashboardLayoutProps
   const location = useLocation();
   const navigate = useNavigate();
   const config = sidebarConfigs[role];
+  const [userName, setUserName] = useState('');
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        supabase.from('profiles').select('name').eq('user_id', session.user.id).maybeSingle()
+          .then(({ data }) => { if (data?.name) setUserName(data.name); });
+      }
+    });
+  }, []);
 
   const roleIcon = role === 'admin' ? <Shield size={20} /> : role === 'recruiter' ? <Briefcase size={20} /> : <Users size={20} />;
 
@@ -88,7 +98,7 @@ export default function DashboardLayout({ role, children }: DashboardLayoutProps
               {roleIcon}
             </div>
             <div>
-              <h2 className="font-display font-semibold text-sm text-foreground">{config.title}</h2>
+              <h2 className="font-display font-semibold text-sm text-foreground">{userName || config.title}</h2>
               <p className="text-xs text-muted-foreground capitalize">{role}</p>
             </div>
           </div>
