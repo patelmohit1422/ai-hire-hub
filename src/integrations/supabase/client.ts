@@ -5,13 +5,20 @@ import type { Database } from './types';
 const SUPABASE_URL = "https://dtkoenqyxptijpacpxdk.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR0a29lbnF5eHB0aWpwYWNweGRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA1ODA4NTUsImV4cCI6MjA4NjE1Njg1NX0.GkpI9vD04OgSwl9LvGdUEi8-OHVojbiFzlbcO8Y9LDA";
 
+// Preserve the original native fetch before any interceptors modify it
+const nativeFetch = globalThis.fetch.bind(globalThis);
+
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth: {
-    storage: localStorage,
     persistSession: true,
     autoRefreshToken: true,
-  }
+    detectSessionInUrl: true,
+    flowType: 'pkce',
+  },
+  global: {
+    fetch: nativeFetch,
+  },
 });
