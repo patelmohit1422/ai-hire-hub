@@ -58,10 +58,7 @@ export default function AuthPage() {
         setIsLogin(true);
       }
     } catch (err: any) {
-      const msg = err.message?.includes('fetch')
-        ? 'Network error. Please check your connection and try again.'
-        : (err.message || 'An error occurred');
-      toast.error(msg);
+      toast.error(err.message || 'An error occurred');
     } finally {
       setLoading(false);
     }
