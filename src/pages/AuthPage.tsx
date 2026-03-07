@@ -12,7 +12,6 @@ export default function AuthPage() {
   const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(searchParams.get('mode') !== 'register');
   const [showPass, setShowPass] = useState(false);
-  // Only candidates can sign up; role selection removed from UI
   const [form, setForm] = useState({ name: '', email: '', password: '' });
   const [loading, setLoading] = useState(false);
   const { signIn, signUp, role: userRole } = useAuth();
@@ -65,52 +64,52 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-hero flex items-center justify-center px-6 py-16">
+    <div className="min-h-screen bg-background flex items-center justify-center px-6 py-16">
       <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5 }}
-        className="w-full max-w-md"
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="w-full max-w-sm"
       >
-        <div className="text-center mb-8">
-          <div className="flex items-center justify-between mb-6">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-8">
+            <button
               onClick={() => navigate('/')}
               className="p-2 rounded-lg border border-border hover:bg-muted transition-colors"
             >
-              <ArrowLeft size={16} className="text-muted-foreground" />
-            </motion.button>
+              <ArrowLeft size={15} className="text-muted-foreground" />
+            </button>
             <Link to="/" className="inline-flex items-center gap-2">
-              <div className="w-10 h-10 rounded-xl bg-gradient-primary flex items-center justify-center">
-                <Brain size={22} className="text-primary-foreground" />
+              <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+                <Brain size={18} className="text-primary-foreground" />
               </div>
-              <span className="font-display font-bold text-xl text-foreground">HireAI</span>
+              <span className="font-semibold text-lg text-foreground tracking-tight">HireAI</span>
             </Link>
             <ThemeToggle />
           </div>
-          <h1 className="text-2xl font-display font-bold text-foreground">
-            {isLogin ? 'Welcome Back' : 'Create Account'}
-          </h1>
-          <p className="text-sm text-muted-foreground mt-2">
-            {isLogin ? 'Sign in to your dashboard' : 'Start your hiring journey'}
-          </p>
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-foreground tracking-tight">
+              {isLogin ? 'Welcome back' : 'Create account'}
+            </h1>
+            <p className="text-sm text-muted-foreground mt-2">
+              {isLogin ? 'Sign in to your dashboard' : 'Start your hiring journey'}
+            </p>
+          </div>
         </div>
 
-        <div className="rounded-2xl border border-border bg-card p-8 shadow-elevated">
+        <div className="rounded-xl border border-border bg-card p-7">
           <form onSubmit={handleSubmit} className="space-y-4">
             {!isLogin && (
               <div>
                 <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Full Name</label>
                 <div className="relative">
-                  <User size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                  <User size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
                   <input
                     type="text"
                     value={form.name}
                     onChange={(e) => setForm({ ...form, name: e.target.value })}
                     placeholder="John Doe"
-                    className="w-full pl-10 pr-4 py-2.5 rounded-lg bg-muted border border-border text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 transition-all"
+                    className="w-full pl-9 pr-4 py-2.5 rounded-lg bg-muted/50 border border-border text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/30 transition-all"
                     required
                   />
                 </div>
@@ -119,13 +118,13 @@ export default function AuthPage() {
             <div>
               <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Email</label>
               <div className="relative">
-                <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <Mail size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
                 <input
                   type="email"
                   value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
                   placeholder="john@example.com"
-                  className="w-full pl-10 pr-4 py-2.5 rounded-lg bg-muted border border-border text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 transition-all"
+                  className="w-full pl-9 pr-4 py-2.5 rounded-lg bg-muted/50 border border-border text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/30 transition-all"
                   required
                 />
               </div>
@@ -133,35 +132,33 @@ export default function AuthPage() {
             <div>
               <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Password</label>
               <div className="relative">
-                <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <Lock size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
                 <input
                   type={showPass ? 'text' : 'password'}
                   value={form.password}
                   onChange={(e) => setForm({ ...form, password: e.target.value })}
                   placeholder="••••••••"
-                  className="w-full pl-10 pr-10 py-2.5 rounded-lg bg-muted border border-border text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 transition-all"
+                  className="w-full pl-9 pr-10 py-2.5 rounded-lg bg-muted/50 border border-border text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/30 transition-all"
                   required
                   minLength={6}
                 />
-                <button type="button" onClick={() => setShowPass(!showPass)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
-                  {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
+                <button type="button" onClick={() => setShowPass(!showPass)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
+                  {showPass ? <EyeOff size={15} /> : <Eye size={15} />}
                 </button>
               </div>
             </div>
 
-            <motion.button
+            <button
               type="submit"
-              whileHover={{ scale: loading ? 1 : 1.02 }}
-              whileTap={{ scale: loading ? 1 : 0.98 }}
               disabled={loading}
-              className="w-full py-3 rounded-lg bg-gradient-primary text-primary-foreground font-semibold text-sm flex items-center justify-center gap-2 shadow-glow mt-2 disabled:opacity-60"
+              className="w-full py-2.5 rounded-lg bg-primary text-primary-foreground font-medium text-sm flex items-center justify-center gap-2 mt-2 disabled:opacity-50 hover:opacity-90 transition-opacity"
             >
               {loading ? (
-                <><Loader2 size={16} className="animate-spin" /> Processing...</>
+                <><Loader2 size={15} className="animate-spin" /> Processing...</>
               ) : (
-                <>{isLogin ? 'Sign In' : 'Create Account'} <ArrowRight size={16} /></>
+                <>{isLogin ? 'Sign In' : 'Create Account'} <ArrowRight size={14} /></>
               )}
-            </motion.button>
+            </button>
           </form>
 
           <p className="text-center text-sm text-muted-foreground mt-6">

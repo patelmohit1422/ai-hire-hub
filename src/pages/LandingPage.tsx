@@ -5,12 +5,12 @@ import HeroScene from '@/components/HeroScene';
 import ThemeToggle from '@/components/ThemeToggle';
 
 const features = [
-  { icon: <Brain size={24} />, title: 'AI Resume Parsing', desc: 'Extract skills, experience, and education automatically from any resume format.' },
-  { icon: <Zap size={24} />, title: 'Smart Interviews', desc: 'Role-based AI-generated questions with timed responses and evaluation.' },
-  { icon: <BarChart3 size={24} />, title: 'Data-Driven Scoring', desc: 'Objective candidate scoring combining resume analysis and interview performance.' },
-  { icon: <Shield size={24} />, title: 'Bias Reduction', desc: 'Structured evaluation criteria that minimize unconscious bias in hiring.' },
-  { icon: <Users size={24} />, title: 'Team Collaboration', desc: 'Recruiters can compare, discuss, and make decisions on a shared platform.' },
-  { icon: <Clock size={24} />, title: 'Time Savings', desc: 'Automate screening to reduce time-to-hire by up to 70%.' },
+  { icon: <Brain size={22} />, title: 'AI Resume Parsing', desc: 'Extract skills, experience, and education automatically from any resume format.' },
+  { icon: <Zap size={22} />, title: 'Smart Interviews', desc: 'Role-based AI-generated questions with timed responses and evaluation.' },
+  { icon: <BarChart3 size={22} />, title: 'Data-Driven Scoring', desc: 'Objective candidate scoring combining resume analysis and interview performance.' },
+  { icon: <Shield size={22} />, title: 'Bias Reduction', desc: 'Structured evaluation criteria that minimize unconscious bias in hiring.' },
+  { icon: <Users size={22} />, title: 'Team Collaboration', desc: 'Recruiters can compare, discuss, and make decisions on a shared platform.' },
+  { icon: <Clock size={22} />, title: 'Time Savings', desc: 'Automate screening to reduce time-to-hire by up to 70%.' },
 ];
 
 const stats = [
@@ -21,10 +21,10 @@ const stats = [
 ];
 
 const steps = [
-  { icon: <FileText size={28} />, step: '01', title: 'Post a Job', desc: 'Define the role, skills required, and evaluation criteria in minutes.' },
-  { icon: <Users size={28} />, step: '02', title: 'Candidates Apply', desc: 'Applicants submit their resumes and complete AI-powered interviews.' },
-  { icon: <MessageSquare size={28} />, step: '03', title: 'AI Evaluates', desc: 'Our AI scores candidates based on resume match and interview responses.' },
-  { icon: <Award size={28} />, step: '04', title: 'Hire the Best', desc: 'Compare scores, review insights, and make confident hiring decisions.' },
+  { icon: <FileText size={24} />, step: '01', title: 'Post a Job', desc: 'Define the role, skills required, and evaluation criteria in minutes.' },
+  { icon: <Users size={24} />, step: '02', title: 'Candidates Apply', desc: 'Applicants submit their resumes and complete AI-powered interviews.' },
+  { icon: <MessageSquare size={24} />, step: '03', title: 'AI Evaluates', desc: 'Our AI scores candidates based on resume match and interview responses.' },
+  { icon: <Award size={24} />, step: '04', title: 'Hire the Best', desc: 'Compare scores, review insights, and make confident hiring decisions.' },
 ];
 
 const testimonials = [
@@ -43,12 +43,12 @@ export default function LandingPage() {
         transition={{ duration: 0.5 }}
         className="fixed top-0 left-0 right-0 z-50 glass-strong"
       >
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-primary flex items-center justify-center">
-              <Brain size={18} className="text-primary-foreground" />
+        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+          <Link to="/" className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+              <Brain size={17} className="text-primary-foreground" />
             </div>
-            <span className="font-display font-bold text-lg text-foreground">HireAI</span>
+            <span className="font-semibold text-lg text-foreground tracking-tight">HireAI</span>
           </Link>
           <div className="hidden md:flex items-center gap-8">
             <a href="#features" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Features</a>
@@ -57,13 +57,9 @@ export default function LandingPage() {
             <Link to="/auth" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Login</Link>
             <ThemeToggle />
             <Link to="/auth?mode=register">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="px-5 py-2 rounded-lg bg-gradient-primary text-primary-foreground text-sm font-semibold shadow-glow"
-              >
+              <button className="px-5 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-opacity">
                 Get Started
-              </motion.button>
+              </button>
             </Link>
           </div>
         </div>
@@ -72,67 +68,59 @@ export default function LandingPage() {
       {/* Hero */}
       <section className="relative min-h-screen flex items-center justify-center bg-gradient-hero">
         <HeroScene />
-        <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
+        <div className="relative z-10 max-w-3xl mx-auto px-6 text-center">
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
+            transition={{ duration: 0.7, delay: 0.2 }}
           >
-            <span className="inline-block px-4 py-1.5 rounded-full text-xs font-medium bg-primary/10 text-primary border border-primary/20 mb-6">
+            <span className="inline-block px-3.5 py-1.5 rounded-full text-xs font-medium bg-primary/8 text-primary border border-primary/15 mb-8">
               AI-Powered Hiring Platform
             </span>
-            <h1 className="text-5xl md:text-7xl font-display font-bold leading-tight mb-6">
-              <span className="text-foreground">Hire Smarter with</span>
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold leading-[1.1] mb-6 tracking-tight">
+              <span className="text-foreground">Hire smarter with</span>
               <br />
-              <span className="text-gradient-primary">AI Intelligence</span>
+              <span className="font-serif-display text-primary">AI intelligence</span>
             </h1>
-            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed">
+            <p className="text-base md:text-lg text-muted-foreground max-w-xl mx-auto mb-10 leading-relaxed">
               Automate resume screening, conduct AI-assisted interviews, and make data-driven hiring decisions — all on one platform.
             </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
               <Link to="/auth?mode=register">
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="px-8 py-3.5 rounded-xl bg-gradient-primary text-primary-foreground font-semibold shadow-glow flex items-center gap-2"
-                >
-                  Start Free Trial <ArrowRight size={18} />
-                </motion.button>
+                <button className="px-7 py-3 rounded-lg bg-primary text-primary-foreground font-medium flex items-center gap-2 hover:opacity-90 transition-opacity">
+                  Start Free Trial <ArrowRight size={16} />
+                </button>
               </Link>
               <Link to="/pricing">
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="px-8 py-3.5 rounded-xl border border-border text-foreground font-semibold hover:bg-muted transition-colors"
-                >
+                <button className="px-7 py-3 rounded-lg border border-border text-foreground font-medium hover:bg-muted/60 transition-colors">
                   View Pricing
-                </motion.button>
+                </button>
               </Link>
             </div>
             {/* Trust badges */}
-            <div className="mt-12 flex items-center justify-center gap-6 text-muted-foreground">
-              <div className="flex items-center gap-1.5 text-xs"><CheckCircle2 size={14} className="text-primary" /> No credit card required</div>
-              <div className="flex items-center gap-1.5 text-xs"><CheckCircle2 size={14} className="text-primary" /> 14-day free trial</div>
-              <div className="flex items-center gap-1.5 text-xs"><CheckCircle2 size={14} className="text-primary" /> Cancel anytime</div>
+            <div className="mt-14 flex flex-wrap items-center justify-center gap-6 text-muted-foreground">
+              <div className="flex items-center gap-1.5 text-xs"><CheckCircle2 size={13} className="text-primary/70" /> No credit card required</div>
+              <div className="flex items-center gap-1.5 text-xs"><CheckCircle2 size={13} className="text-primary/70" /> 14-day free trial</div>
+              <div className="flex items-center gap-1.5 text-xs"><CheckCircle2 size={13} className="text-primary/70" /> Cancel anytime</div>
             </div>
           </motion.div>
         </div>
       </section>
 
       {/* Stats */}
-      <section className="py-16 border-y border-border bg-card/50">
-        <div className="max-w-6xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8">
+      <section className="py-16 border-y border-border">
+        <div className="max-w-5xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8">
           {stats.map((stat, i) => (
             <motion.div
               key={stat.label}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: i * 0.1 }}
+              transition={{ delay: i * 0.08 }}
               className="text-center"
             >
-              <p className="text-3xl md:text-4xl font-display font-bold text-gradient-primary">{stat.value}</p>
-              <p className="text-sm text-muted-foreground mt-1">{stat.label}</p>
+              <p className="text-3xl md:text-4xl font-bold text-foreground tracking-tight">{stat.value}</p>
+              <p className="text-sm text-muted-foreground mt-1.5">{stat.label}</p>
             </motion.div>
           ))}
         </div>
@@ -140,36 +128,35 @@ export default function LandingPage() {
 
       {/* Features */}
       <section id="features" className="py-24 px-6">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-5xl mx-auto">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <span className="inline-block px-3 py-1 rounded-full text-xs font-medium bg-accent/10 text-accent border border-accent/20 mb-4">Features</span>
-            <h2 className="text-3xl md:text-4xl font-display font-bold text-foreground mb-4">
-              Powerful Features for Modern Hiring
+            <p className="text-sm font-medium text-primary mb-3">Features</p>
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4 tracking-tight">
+              Powerful features for <span className="font-serif-display text-primary">modern hiring</span>
             </h2>
-            <p className="text-muted-foreground max-w-xl mx-auto">
+            <p className="text-muted-foreground max-w-lg mx-auto">
               Everything you need to transform your hiring process from manual to intelligent.
             </p>
           </motion.div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
             {features.map((f, i) => (
               <motion.div
                 key={f.title}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 16 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: i * 0.08 }}
-                whileHover={{ y: -6 }}
-                className="rounded-xl border border-border bg-card p-6 shadow-card hover:shadow-glow transition-all duration-300"
+                transition={{ delay: i * 0.06 }}
+                className="rounded-xl border border-border bg-card p-6 hover:border-primary/20 transition-colors duration-300"
               >
-                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary mb-4">
+                <div className="w-10 h-10 rounded-lg bg-primary/8 flex items-center justify-center text-primary mb-4">
                   {f.icon}
                 </div>
-                <h3 className="font-display font-semibold text-foreground mb-2">{f.title}</h3>
+                <h3 className="font-semibold text-foreground mb-2">{f.title}</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
               </motion.div>
             ))}
@@ -178,37 +165,37 @@ export default function LandingPage() {
       </section>
 
       {/* How It Works */}
-      <section id="how-it-works" className="py-24 px-6 bg-gradient-hero">
-        <div className="max-w-6xl mx-auto">
+      <section id="how-it-works" className="py-24 px-6 bg-muted/30">
+        <div className="max-w-5xl mx-auto">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <span className="inline-block px-3 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary border border-primary/20 mb-4">Process</span>
-            <h2 className="text-3xl md:text-4xl font-display font-bold text-foreground mb-4">
-              How It Works
+            <p className="text-sm font-medium text-primary mb-3">Process</p>
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4 tracking-tight">
+              How it works
             </h2>
-            <p className="text-muted-foreground max-w-xl mx-auto">
+            <p className="text-muted-foreground max-w-lg mx-auto">
               Get started in four simple steps. From job posting to making your hire.
             </p>
           </motion.div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5">
             {steps.map((s, i) => (
               <motion.div
                 key={s.step}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 16 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: i * 0.12 }}
-                className="relative rounded-xl border border-border bg-card p-6 shadow-card text-center group"
+                transition={{ delay: i * 0.1 }}
+                className="relative rounded-xl border border-border bg-card p-6 text-center"
               >
-                <div className="text-5xl font-display font-bold text-primary/10 absolute top-3 right-4">{s.step}</div>
-                <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center text-primary mx-auto mb-4 group-hover:shadow-glow transition-shadow">
+                <span className="text-4xl font-bold text-muted-foreground/15 absolute top-3 right-4 select-none">{s.step}</span>
+                <div className="w-12 h-12 rounded-xl bg-primary/8 flex items-center justify-center text-primary mx-auto mb-4">
                   {s.icon}
                 </div>
-                <h3 className="font-display font-semibold text-foreground mb-2">{s.title}</h3>
+                <h3 className="font-semibold text-foreground mb-2">{s.title}</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">{s.desc}</p>
               </motion.div>
             ))}
@@ -218,40 +205,40 @@ export default function LandingPage() {
 
       {/* Testimonials */}
       <section className="py-24 px-6">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-5xl mx-auto">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <span className="inline-block px-3 py-1 rounded-full text-xs font-medium bg-accent/10 text-accent border border-accent/20 mb-4">Testimonials</span>
-            <h2 className="text-3xl md:text-4xl font-display font-bold text-foreground mb-4">
-              Loved by Hiring Teams
+            <p className="text-sm font-medium text-accent mb-3">Testimonials</p>
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4 tracking-tight">
+              Loved by hiring teams
             </h2>
-            <p className="text-muted-foreground max-w-xl mx-auto">
+            <p className="text-muted-foreground max-w-lg mx-auto">
               See what industry leaders say about transforming their hiring with HireAI.
             </p>
           </motion.div>
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-3 gap-5">
             {testimonials.map((t, i) => (
               <motion.div
                 key={t.name}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 16 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className="rounded-xl border border-border bg-card p-6 shadow-card"
+                transition={{ delay: i * 0.08 }}
+                className="rounded-xl border border-border bg-card p-6"
               >
-                <div className="flex gap-1 mb-4">
+                <div className="flex gap-0.5 mb-4">
                   {[...Array(5)].map((_, j) => (
-                    <Star key={j} size={14} className="text-warning fill-warning" />
+                    <Star key={j} size={13} className="text-warning fill-warning" />
                   ))}
                 </div>
-                <p className="text-sm text-muted-foreground leading-relaxed mb-5 italic">"{t.quote}"</p>
+                <p className="text-sm text-muted-foreground leading-relaxed mb-5">"{t.quote}"</p>
                 <div>
-                  <p className="text-sm font-semibold text-foreground">{t.name}</p>
-                  <p className="text-xs text-muted-foreground">{t.role}</p>
+                  <p className="text-sm font-medium text-foreground">{t.name}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{t.role}</p>
                 </div>
               </motion.div>
             ))}
@@ -260,37 +247,29 @@ export default function LandingPage() {
       </section>
 
       {/* CTA */}
-      <section className="py-24 px-6 bg-gradient-hero">
-        <div className="max-w-3xl mx-auto text-center">
+      <section className="py-24 px-6 bg-muted/30">
+        <div className="max-w-2xl mx-auto text-center">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-3xl md:text-5xl font-display font-bold text-foreground mb-6">
-              Ready to Transform Your Hiring?
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-5 tracking-tight">
+              Ready to transform <span className="font-serif-display text-primary">your hiring?</span>
             </h2>
-            <p className="text-muted-foreground text-lg mb-10 max-w-xl mx-auto">
+            <p className="text-muted-foreground text-base mb-10 max-w-md mx-auto leading-relaxed">
               Join 500+ companies already making smarter, faster, and fairer hiring decisions with HireAI.
             </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
               <Link to="/auth?mode=register">
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="px-8 py-3.5 rounded-xl bg-gradient-primary text-primary-foreground font-semibold shadow-glow flex items-center gap-2"
-                >
-                  Get Started for Free <ArrowRight size={18} />
-                </motion.button>
+                <button className="px-7 py-3 rounded-lg bg-primary text-primary-foreground font-medium flex items-center gap-2 hover:opacity-90 transition-opacity">
+                  Get Started for Free <ArrowRight size={16} />
+                </button>
               </Link>
               <Link to="/pricing">
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="px-8 py-3.5 rounded-xl border border-border text-foreground font-semibold hover:bg-muted transition-colors"
-                >
+                <button className="px-7 py-3 rounded-lg border border-border text-foreground font-medium hover:bg-muted/60 transition-colors">
                   See Plans & Pricing
-                </motion.button>
+                </button>
               </Link>
             </div>
           </motion.div>
@@ -299,16 +278,16 @@ export default function LandingPage() {
 
       {/* Role CTAs */}
       <section className="py-24 px-6">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-5xl mx-auto">
           <motion.h2
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
-            className="text-3xl md:text-4xl font-display font-bold text-center text-foreground mb-12"
+            className="text-3xl md:text-4xl font-bold text-center text-foreground mb-12 tracking-tight"
           >
-            Explore the Platform
+            Explore the platform
           </motion.h2>
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-3 gap-5">
             {[
               { role: 'Candidate', path: '/candidate', desc: 'Apply to jobs, take AI interviews, and track your progress.' },
               { role: 'Recruiter', path: '/recruiter', desc: 'Post jobs, review candidates, and make data-driven decisions.' },
@@ -316,17 +295,16 @@ export default function LandingPage() {
             ].map((item, i) => (
               <motion.div
                 key={item.role}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 16 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                whileHover={{ y: -6 }}
+                transition={{ delay: i * 0.08 }}
               >
-                <Link to={item.path} className="block rounded-xl border border-border bg-card p-8 shadow-card hover:shadow-glow transition-all duration-300 group">
-                  <h3 className="font-display font-bold text-xl text-foreground mb-3 group-hover:text-primary transition-colors">{item.role}</h3>
-                  <p className="text-sm text-muted-foreground mb-6">{item.desc}</p>
-                  <span className="flex items-center gap-2 text-primary text-sm font-medium">
-                    Enter Dashboard <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                <Link to={item.path} className="block rounded-xl border border-border bg-card p-7 hover:border-primary/25 transition-colors duration-300 group">
+                  <h3 className="font-semibold text-lg text-foreground mb-2 group-hover:text-primary transition-colors">{item.role}</h3>
+                  <p className="text-sm text-muted-foreground mb-5">{item.desc}</p>
+                  <span className="flex items-center gap-1.5 text-primary text-sm font-medium">
+                    Enter Dashboard <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
                   </span>
                 </Link>
               </motion.div>
@@ -336,18 +314,18 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="py-12 px-6 border-t border-border">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+      <footer className="py-10 px-6 border-t border-border">
+        <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-gradient-primary flex items-center justify-center">
-              <Brain size={14} className="text-primary-foreground" />
+            <div className="w-6 h-6 rounded bg-primary flex items-center justify-center">
+              <Brain size={13} className="text-primary-foreground" />
             </div>
-            <span className="font-display font-bold text-foreground">HireAI</span>
+            <span className="font-semibold text-foreground text-sm">HireAI</span>
           </div>
-          <p className="text-sm text-muted-foreground">© 2026 HireAI. AI-powered hiring for the future.</p>
+          <p className="text-xs text-muted-foreground">© 2026 HireAI. AI-powered hiring for the future.</p>
           <div className="flex items-center gap-6">
-            <Link to="/pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Pricing</Link>
-            <Link to="/auth" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Login</Link>
+            <Link to="/pricing" className="text-xs text-muted-foreground hover:text-foreground transition-colors">Pricing</Link>
+            <Link to="/auth" className="text-xs text-muted-foreground hover:text-foreground transition-colors">Login</Link>
           </div>
         </div>
       </footer>
