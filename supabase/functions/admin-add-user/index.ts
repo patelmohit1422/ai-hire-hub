@@ -1,3 +1,4 @@
+// admin-add-user edge function - allows admins to create new users with specified roles
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
@@ -32,7 +33,7 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    // Client 1: Verify caller identity using their JWT
+    // verify caller is authenticated
     const userClient = createClient(supabaseUrl, supabaseAnonKey, {
       global: { headers: { Authorization: authHeader } },
     });
@@ -48,10 +49,9 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    // Client 2: Service role for admin operations
     const serviceClient = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Verify caller is admin via user_roles table
+    // check that caller has admin role
     const { data: adminRole, error: roleError } = await serviceClient
       .from("user_roles")
       .select("role")
@@ -74,7 +74,7 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    // Parse request body
+    // parse the new user details from request body
     const body = await req.json();
     const { name, email, password, role, status } = body;
 
@@ -85,7 +85,7 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    // Check if email already exists in auth or profiles
+    // check if email already exists in profiles
     const { data: existingProfile } = await serviceClient
       .from("profiles")
       .select("id, email")
@@ -99,7 +99,7 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    // Also check auth.users directly (listUsers filter is fuzzy, so we must exact-match)
+    // also check auth.users for exact email match
     const { data: existingAuthUser } = await serviceClient.auth.admin.listUsers({ page: 1, perPage: 1000 });
     const exactMatch = existingAuthUser?.users?.find(
       (u) => u.email?.toLowerCase() === email.toLowerCase()
@@ -113,15 +113,14 @@ Deno.serve(async (req: Request) => {
 
     console.log(`Admin ${caller.email} creating user: ${email} with role: ${role}`);
 
-    // Use provided password or generate a temporary one
     const userPassword = password || Math.random().toString(36).slice(-12) + "A1!";
 
-    // Create user via Supabase Admin Auth API
+    // create user via supabase admin auth
     const { data: createData, error: createError } =
       await serviceClient.auth.admin.createUser({
         email,
         password: userPassword,
-        email_confirm: false, // User must confirm via email
+        email_confirm: false,
         user_metadata: { name, role },
       });
 
@@ -141,11 +140,9 @@ Deno.serve(async (req: Request) => {
     }
 
     const newUserId = createData.user.id;
-
-    // Role is auto-assigned by handle_new_user trigger, but verify
     console.log(`User created: ${newUserId} (${email}), role assigned via trigger`);
 
-    // Update profile status if not active
+    // update profile status if not active
     if (status && status !== "active") {
       await serviceClient
         .from("profiles")

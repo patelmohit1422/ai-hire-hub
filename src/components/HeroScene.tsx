@@ -1,3 +1,4 @@
+// hero section background - floating gradient shapes and subtle grid
 import { motion } from 'framer-motion';
 
 function FloatingShape({ delay, x, y, size, color }: { delay: number; x: string; y: string; size: string; color: string }) {
@@ -22,6 +23,7 @@ function FloatingShape({ delay, x, y, size, color }: { delay: number; x: string;
   );
 }
 
+// faint background grid pattern
 function SubtleGrid() {
   return (
     <div className="absolute inset-0 overflow-hidden opacity-[0.025]">
@@ -47,7 +49,7 @@ export default function HeroScene() {
       <FloatingShape delay={3} x="65%" y="55%" size="400px" color="hsl(252 40% 55%)" />
       <FloatingShape delay={5} x="45%" y="5%" size="300px" color="hsl(190 45% 48%)" />
       
-      {/* Radial fade to background */}
+      {/* fade edges into background color */}
       <div className="absolute inset-0" style={{
         background: 'radial-gradient(ellipse 80% 60% at 50% 50%, transparent, hsl(var(--background)))',
       }} />

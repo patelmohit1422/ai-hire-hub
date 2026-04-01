@@ -1,3 +1,4 @@
+// theme provider - manages dark/light mode toggle with localStorage persistence
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 
 type Theme = 'dark' | 'light';
@@ -15,6 +16,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     return (stored === 'light' || stored === 'dark') ? stored : 'dark';
   });
 
+  // apply theme class to document root
   useEffect(() => {
     const root = document.documentElement;
     root.classList.remove('light', 'dark');

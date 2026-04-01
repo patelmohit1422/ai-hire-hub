@@ -1,3 +1,4 @@
+// seed-data edge function - populates database with sample users, jobs, applications, and scores
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
@@ -17,7 +18,7 @@ serve(async (req) => {
     const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY") || Deno.env.get("SUPABASE_PUBLISHABLE_KEY")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
-    // Verify caller is authenticated and is an admin
+    // verify caller is an admin
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
       return new Response(
@@ -42,7 +43,6 @@ serve(async (req) => {
 
     const serviceClient = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Verify caller has admin role
     const { data: adminRole } = await serviceClient
       .from("user_roles")
       .select("role")
@@ -58,10 +58,9 @@ serve(async (req) => {
     }
 
     const supabase = serviceClient;
-
     const results: string[] = [];
 
-    // Create 10 users via auth admin
+    // sample users to create
     const users = [
       { email: "alice.johnson@example.com", name: "Alice Johnson", role: "candidate" },
       { email: "bob.smith@example.com", name: "Bob Smith", role: "candidate" },
@@ -78,7 +77,6 @@ serve(async (req) => {
     const createdUsers: Array<{ id: string; email: string; role: string; name: string }> = [];
 
     for (const u of users) {
-      // Check if user already exists
       const { data: existingUsers } = await supabase.auth.admin.listUsers();
       const existing = existingUsers?.users?.find((eu: any) => eu.email === u.email);
       
@@ -103,10 +101,10 @@ serve(async (req) => {
       }
     }
 
-    // Wait for triggers to create profiles
+    // wait for database triggers to create profiles
     await new Promise(r => setTimeout(r, 2000));
 
-    // Update profiles with detailed data
+    // update candidate profiles with detailed data
     const candidateProfiles = [
       { email: "alice.johnson@example.com", title: "Senior React Developer", location: "San Francisco, CA", experience: "5 years", skills: ["React", "TypeScript", "Node.js", "GraphQL", "AWS"] },
       { email: "bob.smith@example.com", title: "Full Stack Engineer", location: "New York, NY", experience: "3 years", skills: ["JavaScript", "Python", "Django", "PostgreSQL", "Docker"] },
@@ -131,7 +129,7 @@ serve(async (req) => {
       }
     }
 
-    // Get profile IDs for recruiter users
+    // get recruiter profile IDs for job assignments
     const recruiterUsers = createdUsers.filter(u => u.role === "recruiter");
     const recruiterProfileIds: string[] = [];
     for (const ru of recruiterUsers) {
@@ -139,7 +137,7 @@ serve(async (req) => {
       if (prof) recruiterProfileIds.push(prof.id);
     }
 
-    // Create 10 jobs
+    // sample job postings
     const jobsData = [
       { title: "Senior React Developer", description: "Build modern web apps using React and TypeScript", skills: ["React", "TypeScript", "Node.js", "REST API"], experience_level: "senior", location: "San Francisco, CA", job_type: "Full-time", salary_range: "$120k-$160k" },
       { title: "Full Stack Engineer", description: "Work on frontend and backend systems", skills: ["JavaScript", "Python", "PostgreSQL", "Docker"], experience_level: "mid", location: "Remote", job_type: "Full-time", salary_range: "$100k-$140k" },
@@ -158,7 +156,6 @@ serve(async (req) => {
       const jd = jobsData[i];
       const recruiterId = recruiterProfileIds[i % recruiterProfileIds.length] || null;
       
-      // Check if job already exists
       const { data: existing } = await supabase.from("jobs").select("id").eq("title", jd.title).maybeSingle();
       if (existing) {
         createdJobs.push(existing.id);
@@ -180,7 +177,7 @@ serve(async (req) => {
       }
     }
 
-    // Create applications (candidates applying to jobs)
+    // create applications linking candidates to jobs
     const candidateUsers = createdUsers.filter(u => u.role === "candidate");
     const candidateProfileIds: string[] = [];
     for (const cu of candidateUsers) {
@@ -228,7 +225,7 @@ serve(async (req) => {
       }
     }
 
-    // Create interviews for completed applications
+    // create sample interviews with questions and answers
     const interviewApps = createdApps.slice(0, 5);
     const createdInterviews: string[] = [];
     for (const appId of interviewApps) {
@@ -248,7 +245,7 @@ serve(async (req) => {
 
       const answers = [
         "I have extensive experience building production applications with modern frameworks. I focus on clean architecture, testing, and performance optimization.",
-        "I start by reproducing the issue locally, then use logging and monitoring tools to trace the root cause. I believe in systematic debugging rather than guessing.",
+        "I start by reproducing the issue locally, then use logging and monitoring to trace the root cause. I believe in systematic debugging rather than guessing.",
         "I would use a microservices architecture with load balancing, caching layers, and a CDN. Database sharding and read replicas would handle data scaling.",
         "In my previous role, I worked closely with designers and product managers to deliver features. We used agile sprints and daily standups for alignment.",
         "I'm excited about the technical challenges and the opportunity to work with cutting-edge technologies while making a real impact on users.",
@@ -269,7 +266,7 @@ serve(async (req) => {
       }
     }
 
-    // Create scores for interviews
+    // create score records for completed interviews
     const scoreValues = [
       { resume: 85, interview: 89, total: 87, status: "passed" },
       { resume: 70, interview: 74, total: 72, status: "under_review" },
