@@ -1,3 +1,4 @@
+// custom hook for authentication - handles sign in, sign up, and session management
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -21,7 +22,7 @@ export function useAuth() {
   });
 
   useEffect(() => {
-    // Get initial session
+    // check if user already has a session
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
         fetchUserData(session.user);
@@ -30,7 +31,7 @@ export function useAuth() {
       }
     });
 
-    // Listen for auth changes
+    // listen for login/logout events
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.user) {
         fetchUserData(session.user);
@@ -42,6 +43,7 @@ export function useAuth() {
     return () => subscription.unsubscribe();
   }, []);
 
+  // fetch profile and role from database after login
   async function fetchUserData(user: User) {
     try {
       const { data: profile } = await supabase
@@ -68,6 +70,7 @@ export function useAuth() {
     }
   }
 
+  // register a new user via auth proxy edge function
   async function signUp(email: string, password: string, name: string, role: string) {
     try {
       const response = await fetch(`${SUPABASE_URL}/functions/v1/auth-proxy`, {
@@ -82,7 +85,7 @@ export function useAuth() {
         return { data: null, error: { message: result.error } as any };
       }
 
-      // If we got a session back, set it in the Supabase client
+      // set session in client if signup returned tokens
       if (result.session) {
         await supabase.auth.setSession({
           access_token: result.session.access_token,
@@ -96,6 +99,7 @@ export function useAuth() {
     }
   }
 
+  // sign in existing user via auth proxy edge function
   async function signIn(email: string, password: string) {
     try {
       const response = await fetch(`${SUPABASE_URL}/functions/v1/auth-proxy`, {
@@ -110,7 +114,7 @@ export function useAuth() {
         return { data: null, error: { message: result.error } as any };
       }
 
-      // Set the session in the Supabase client
+      // set session tokens in supabase client
       if (result.session) {
         await supabase.auth.setSession({
           access_token: result.session.access_token,
@@ -124,6 +128,7 @@ export function useAuth() {
     }
   }
 
+  // clear session and reset state
   async function signOut() {
     await supabase.auth.signOut();
     setState({ user: null, profile: null, role: null, loading: false });

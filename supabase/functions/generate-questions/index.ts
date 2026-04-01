@@ -1,3 +1,4 @@
+// edge function to generate interview questions based on resume + job skills
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
@@ -6,22 +7,6 @@ const corsHeaders = {
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
-
-/**
- * AI Question Generation Logic:
- * 
- * 1. Parse candidate's resume skills and the job requirements
- * 2. Find overlapping skills (skills the candidate has that match job requirements)
- * 3. Find gap skills (job requirements the candidate lacks)
- * 4. Generate questions that:
- *    - Test the candidate's claimed skills (overlap questions)
- *    - Assess their ability to learn/adapt (gap questions)
- *    - Evaluate problem-solving and system design abilities
- *    - Test communication and cultural fit
- * 
- * Questions are role-relevant and based on actual resume + job data.
- * This is NOT random question generation.
- */
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -52,7 +37,7 @@ serve(async (req) => {
 
     console.log(`Generating questions for application: ${application_id}`);
 
-    // Fetch application with job and candidate data
+    // fetch the application record
     const { data: application, error: appError } = await supabase
       .from("applications")
       .select("id, job_id, candidate_id")
@@ -67,14 +52,14 @@ serve(async (req) => {
       });
     }
 
-    // Fetch job details
+    // get job details for question generation
     const { data: job } = await supabase
       .from("jobs")
       .select("title, description, skills, experience_level")
       .eq("id", application.job_id)
       .maybeSingle();
 
-    // Fetch candidate profile with resume skills
+    // get candidate profile and resume skills
     const { data: profile } = await supabase
       .from("profiles")
       .select("name, resume_skills, title, experience")
@@ -89,7 +74,7 @@ serve(async (req) => {
 
     console.log(`Job: ${jobTitle}, Job Skills: ${jobSkills}, Resume Skills: ${resumeSkills}`);
 
-    // Skill matching logic
+    // find overlapping and missing skills between resume and job
     const overlapSkills = resumeSkills.filter((s: string) =>
       jobSkills.some((js: string) => js.toLowerCase() === s.toLowerCase())
     );
@@ -97,11 +82,11 @@ serve(async (req) => {
       (js: string) => !resumeSkills.some((s: string) => s.toLowerCase() === js.toLowerCase())
     );
 
-    // Try AI-generated questions via Lovable AI Gateway
+    // try generating questions using AI gateway
     let questions: Array<{ q: string; time: number; category: string }> = [];
 
-    const lovableApiKey = Deno.env.get("LOVABLE_API_KEY");
-    if (lovableApiKey) {
+    const aiApiKey = Deno.env.get("LOVABLE_API_KEY");
+    if (aiApiKey) {
       try {
         const prompt = `You are an AI interviewer. Generate exactly 5 interview questions for a "${jobTitle}" position (${experienceLevel} level).
 
@@ -124,7 +109,7 @@ No markdown, no explanation, just the JSON array.`;
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${lovableApiKey}`,
+            Authorization: `Bearer ${aiApiKey}`,
           },
           body: JSON.stringify({
             model: "google/gemini-3-flash-preview",
@@ -136,23 +121,22 @@ No markdown, no explanation, just the JSON array.`;
         if (aiResponse.ok) {
           const aiData = await aiResponse.json();
           const content = aiData.choices?.[0]?.message?.content || "";
-          // Extract JSON from the response
           const jsonMatch = content.match(/\[[\s\S]*\]/);
           if (jsonMatch) {
             questions = JSON.parse(jsonMatch[0]);
-            console.log(`AI generated ${questions.length} questions`);
+            console.log(`Generated ${questions.length} questions via AI`);
           }
         }
       } catch (aiError) {
-        console.error("AI generation failed, using fallback:", aiError);
+        console.error("AI question generation failed, using fallback:", aiError);
       }
     }
 
-    // Fallback: Generate questions based on skills matching logic
+    // fallback: build questions from skill matching logic
     if (questions.length === 0) {
       console.log("Using fallback question generation");
       
-      // Technical questions based on overlapping skills
+      // technical questions based on overlapping skills
       if (overlapSkills.length > 0) {
         questions.push({
           q: `Explain your experience with ${overlapSkills[0]} and how you've used it in a production environment for ${jobTitle} responsibilities.`,
@@ -185,7 +169,7 @@ No markdown, no explanation, just the JSON array.`;
         });
       }
 
-      // Gap assessment
+      // gap assessment question
       if (gapSkills.length > 0) {
         questions.push({
           q: `This role requires ${gapSkills[0]}. While it's not on your resume, how would you approach learning and applying it?`,
@@ -200,14 +184,14 @@ No markdown, no explanation, just the JSON array.`;
         });
       }
 
-      // System design
+      // system design question
       questions.push({
         q: `How would you design a scalable system architecture for a key feature of a ${jobTitle} project? Walk us through your approach.`,
         time: 150,
         category: "system_design",
       });
 
-      // Communication / cultural fit
+      // communication and cultural fit
       questions.push({
         q: `Describe a situation where you had to collaborate with cross-functional teams. How did you ensure effective communication and delivery?`,
         time: 120,
@@ -215,7 +199,7 @@ No markdown, no explanation, just the JSON array.`;
       });
     }
 
-    // Create interview record
+    // save interview record to database
     const { data: interview, error: intError } = await supabase
       .from("interviews")
       .insert({
@@ -234,7 +218,7 @@ No markdown, no explanation, just the JSON array.`;
       });
     }
 
-    // Update application status
+    // update application status to interviewing
     await supabase
       .from("applications")
       .update({ status: "interviewing" })

@@ -1,3 +1,4 @@
+// main app component - sets up routing, theme, and global providers
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -10,7 +11,7 @@ import PricingPage from "./pages/PricingPage";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 
-// Admin
+// admin pages
 import AdminOverview from "./pages/admin/AdminOverview";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminAddUser from "./pages/admin/AdminAddUser";
@@ -19,7 +20,7 @@ import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AdminScoring from "./pages/admin/AdminScoring";
 import AdminSettings from "./pages/admin/AdminSettings";
 
-// Recruiter
+// recruiter pages
 import RecruiterOverview from "./pages/recruiter/RecruiterOverview";
 import RecruiterJobs from "./pages/recruiter/RecruiterJobs";
 import RecruiterAddJob from "./pages/recruiter/RecruiterAddJob";
@@ -31,7 +32,7 @@ import RecruiterResults from "./pages/recruiter/RecruiterResults";
 import RecruiterDecisions from "./pages/recruiter/RecruiterDecisions";
 import RecruiterSettings from "./pages/recruiter/RecruiterSettings";
 
-// Candidate
+// candidate pages
 import CandidateDashboard from "./pages/candidate/CandidateDashboard";
 import CandidateProfile from "./pages/candidate/CandidateProfile";
 import CandidateJobs from "./pages/candidate/CandidateJobs";
@@ -54,7 +55,7 @@ const App = () => (
           <Route path="/auth" element={<AuthPage />} />
           <Route path="/pricing" element={<PricingPage />} />
 
-          {/* Admin */}
+          {/* admin routes - requires admin role */}
           <Route path="/admin" element={<ProtectedRoute allowedRole="admin"><AdminOverview /></ProtectedRoute>} />
           <Route path="/admin/users" element={<ProtectedRoute allowedRole="admin"><AdminUsers /></ProtectedRoute>} />
           <Route path="/admin/users/add" element={<ProtectedRoute allowedRole="admin"><AdminAddUser /></ProtectedRoute>} />
@@ -63,7 +64,7 @@ const App = () => (
           <Route path="/admin/scoring" element={<ProtectedRoute allowedRole="admin"><AdminScoring /></ProtectedRoute>} />
           <Route path="/admin/settings" element={<ProtectedRoute allowedRole="admin"><AdminSettings /></ProtectedRoute>} />
 
-          {/* Recruiter */}
+          {/* recruiter routes */}
           <Route path="/recruiter" element={<ProtectedRoute allowedRole="recruiter"><RecruiterOverview /></ProtectedRoute>} />
           <Route path="/recruiter/jobs" element={<ProtectedRoute allowedRole="recruiter"><RecruiterJobs /></ProtectedRoute>} />
           <Route path="/recruiter/jobs/add" element={<ProtectedRoute allowedRole="recruiter"><RecruiterAddJob /></ProtectedRoute>} />
@@ -75,7 +76,7 @@ const App = () => (
           <Route path="/recruiter/decisions" element={<ProtectedRoute allowedRole="recruiter"><RecruiterDecisions /></ProtectedRoute>} />
           <Route path="/recruiter/settings" element={<ProtectedRoute allowedRole="recruiter"><RecruiterSettings /></ProtectedRoute>} />
 
-          {/* Candidate */}
+          {/* candidate routes */}
           <Route path="/candidate" element={<ProtectedRoute allowedRole="candidate"><CandidateDashboard /></ProtectedRoute>} />
           <Route path="/candidate/profile" element={<ProtectedRoute allowedRole="candidate"><CandidateProfile /></ProtectedRoute>} />
           <Route path="/candidate/jobs" element={<ProtectedRoute allowedRole="candidate"><CandidateJobs /></ProtectedRoute>} />

@@ -1,3 +1,4 @@
+// auth proxy edge function - handles sign in and sign up server-side to avoid CORS issues
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
@@ -19,6 +20,7 @@ serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
     if (action === "signup") {
+      // register new user with metadata
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -34,7 +36,7 @@ serve(async (req) => {
         });
       }
 
-      // Check for fake signup (email already exists)
+      // check for duplicate email (fake signup returns empty identities)
       if (data?.user && data.user.identities && data.user.identities.length === 0) {
         return new Response(JSON.stringify({ error: "This email is already registered. Please sign in instead." }), {
           status: 400,
@@ -58,7 +60,7 @@ serve(async (req) => {
       });
 
     } else {
-      // Sign in
+      // sign in with email and password
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,

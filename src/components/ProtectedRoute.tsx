@@ -1,3 +1,4 @@
+// route guard - redirects to login if not authenticated, or to correct dashboard if wrong role
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
