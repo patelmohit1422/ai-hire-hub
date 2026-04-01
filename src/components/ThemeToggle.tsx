@@ -1,3 +1,4 @@
+// theme toggle button - switches between dark and light mode
 import { Sun, Moon } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useTheme } from './ThemeProvider';

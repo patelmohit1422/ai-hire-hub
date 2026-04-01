@@ -1,3 +1,4 @@
+// edge function to calculate resume + interview scores for a candidate
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
@@ -6,28 +7,6 @@ const corsHeaders = {
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
-
-/**
- * Score Calculation Logic:
- * 
- * Resume Score (0-100):
- *   - Skill match percentage: (matching_skills / total_job_skills) * 60
- *   - Experience relevance: based on experience_level match * 20
- *   - Profile completeness: based on filled fields * 20
- * 
- * Interview Score (0-100):
- *   - Answer relevance: AI-evaluated or keyword-based scoring per question
- *   - Answer completeness: penalize very short or empty answers
- *   - Average across all questions
- * 
- * Total Score = (resume_score * resume_weight + interview_score * interview_weight) / 100
- *   where weights come from system_settings
- * 
- * Status determination:
- *   - total >= 75: "passed"
- *   - total >= 50: "under_review"
- *   - total < 50: "needs_improvement"
- */
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -58,7 +37,7 @@ serve(async (req) => {
 
     console.log(`Calculating scores for interview: ${interview_id}`);
 
-    // Fetch interview with application data
+    // fetch interview record
     const { data: interview, error: intError } = await supabase
       .from("interviews")
       .select("id, application_id, questions")
@@ -73,7 +52,7 @@ serve(async (req) => {
       });
     }
 
-    // Fetch application → job + candidate
+    // get job and candidate data through application
     const { data: application } = await supabase
       .from("applications")
       .select("id, job_id, candidate_id")
@@ -92,7 +71,7 @@ serve(async (req) => {
       .eq("id", application?.candidate_id)
       .maybeSingle();
 
-    // Fetch scoring weights from system settings
+    // load scoring weights from system settings
     const { data: resumeWeightSetting } = await supabase
       .from("system_settings")
       .select("value")
@@ -108,22 +87,20 @@ serve(async (req) => {
     const resumeWeight = Number(resumeWeightSetting?.value) || 40;
     const interviewWeight = Number(interviewWeightSetting?.value) || 60;
 
-    // =========================================
-    // RESUME SCORE CALCULATION
-    // =========================================
+    // --- resume score calculation ---
     const jobSkills = job?.skills || [];
     const resumeSkills = profile?.resume_skills || [];
 
-    // Skill match score (0-60 points)
+    // skill match score (0-60 points)
     const matchingSkills = resumeSkills.filter((s: string) =>
       jobSkills.some((js: string) => js.toLowerCase() === s.toLowerCase())
     );
     const skillMatchScore = jobSkills.length > 0
       ? (matchingSkills.length / jobSkills.length) * 60
-      : 30; // Default if no job skills defined
+      : 30;
 
-    // Experience relevance (0-20 points)
-    let experienceScore = 10; // default
+    // experience relevance (0-20 points)
+    let experienceScore = 10;
     const exp = profile?.experience || "";
     const level = job?.experience_level || "mid";
     if (level === "junior" && (exp.includes("1") || exp.includes("2") || exp.includes("entry"))) experienceScore = 20;
@@ -131,7 +108,7 @@ serve(async (req) => {
     else if (level === "senior" && (exp.includes("5") || exp.includes("6") || exp.includes("7") || exp.includes("8") || exp.includes("10"))) experienceScore = 20;
     else if (exp.length > 0) experienceScore = 15;
 
-    // Profile completeness (0-20 points)
+    // profile completeness (0-20 points)
     let profileScore = 0;
     if (profile?.name && profile.name.length > 0) profileScore += 5;
     if (profile?.email && profile.email.length > 0) profileScore += 5;
@@ -142,18 +119,16 @@ serve(async (req) => {
 
     console.log(`Resume Score: ${resumeScore} (skills: ${skillMatchScore}, exp: ${experienceScore}, profile: ${profileScore})`);
 
-    // =========================================
-    // INTERVIEW SCORE CALCULATION
-    // =========================================
+    // --- interview score calculation ---
     const questions = interview.questions || [];
     let totalInterviewScore = 0;
     const questionFeedback: Array<{ question: string; score: number; feedback: string }> = [];
 
-    // Try AI-based scoring
-    const lovableApiKey = Deno.env.get("LOVABLE_API_KEY");
+    // try AI-based scoring
+    const aiApiKey = Deno.env.get("LOVABLE_API_KEY");
     let aiScoringDone = false;
 
-    if (lovableApiKey && answers.length > 0) {
+    if (aiApiKey && answers.length > 0) {
       try {
         const scoringPrompt = `You are an AI interview evaluator for a "${job?.skills?.join(', ') || 'technical'}" role.
 
@@ -173,7 +148,7 @@ No markdown, no explanation.`;
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${lovableApiKey}`,
+            Authorization: `Bearer ${aiApiKey}`,
           },
           body: JSON.stringify({
             model: "google/gemini-3-flash-preview",
@@ -192,7 +167,7 @@ No markdown, no explanation.`;
               questionFeedback.push({
                 question: questions[i]?.q || questions[i] || `Question ${i + 1}`,
                 score: Math.min(100, Math.max(0, s.score)),
-                feedback: s.feedback || "Evaluated by AI",
+                feedback: s.feedback || "Evaluated",
               });
               totalInterviewScore += Math.min(100, Math.max(0, s.score));
             });
@@ -205,27 +180,27 @@ No markdown, no explanation.`;
       }
     }
 
-    // Fallback scoring: keyword-based
+    // fallback: keyword-based scoring
     if (!aiScoringDone) {
       console.log("Using fallback keyword-based scoring");
       questions.forEach((q: any, i: number) => {
         const answer = answers[i] || "";
         let score = 0;
 
-        // Length-based score (max 40 points)
+        // length-based score (max 40 points)
         if (answer.length > 200) score += 40;
         else if (answer.length > 100) score += 30;
         else if (answer.length > 50) score += 20;
         else if (answer.length > 10) score += 10;
 
-        // Keyword relevance (max 40 points)
+        // keyword relevance (max 40 points)
         const questionWords = (q.q || q || "").toLowerCase().split(/\s+/);
         const answerLower = answer.toLowerCase();
         const relevantKeywords = jobSkills.filter((s: string) => answerLower.includes(s.toLowerCase()));
         const questionKeywordHits = questionWords.filter((w: string) => w.length > 4 && answerLower.includes(w)).length;
         score += Math.min(40, relevantKeywords.length * 10 + questionKeywordHits * 5);
 
-        // Structure bonus (max 20 points)
+        // structure bonus (max 20 points)
         if (answer.includes("example") || answer.includes("instance")) score += 10;
         if (answer.includes("because") || answer.includes("therefore") || answer.includes("approach")) score += 10;
 
@@ -246,27 +221,25 @@ No markdown, no explanation.`;
       ? Math.round(totalInterviewScore / questions.length)
       : 0;
 
-    // =========================================
-    // TOTAL SCORE CALCULATION
-    // =========================================
+    // --- total score = weighted average ---
     const totalScore = Math.round(
       (resumeScore * resumeWeight + interviewScore * interviewWeight) / 100
     );
 
-    // Determine status
+    // determine pass/fail status
     let status = "under_review";
     if (totalScore >= 75) status = "passed";
     else if (totalScore < 50) status = "needs_improvement";
 
     console.log(`Scores - Resume: ${resumeScore}, Interview: ${interviewScore}, Total: ${totalScore}, Status: ${status}`);
 
-    // Save answers to interview
+    // save answers to interview record
     await supabase
       .from("interviews")
       .update({ answers, status: "completed" })
       .eq("id", interview_id);
 
-    // Save scores
+    // insert score record
     const { data: scoreRecord, error: scoreError } = await supabase
       .from("scores")
       .insert({
@@ -296,7 +269,7 @@ No markdown, no explanation.`;
       });
     }
 
-    // Update application status
+    // update application status based on score
     await supabase
       .from("applications")
       .update({ status: status === "passed" ? "shortlisted" : status === "needs_improvement" ? "rejected" : "review" })
