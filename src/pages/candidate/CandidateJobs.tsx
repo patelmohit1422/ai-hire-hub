@@ -156,7 +156,7 @@ export default function CandidateJobs() {
                       )}
                     </div>
                   </div>
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-3 sm:gap-4 self-end sm:self-auto">
                     {profile?.resume_skills && profile.resume_skills.length > 0 && (
                       <div className="text-center">
                         <p className={`text-lg font-display font-bold ${match >= 80 ? 'text-success' : match >= 60 ? 'text-warning' : 'text-muted-foreground'}`}>{match}%</p>

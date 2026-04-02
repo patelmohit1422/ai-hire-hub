@@ -163,7 +163,7 @@ export default function CandidateResults() {
               {selectedScore.status.replace('_', ' ')}
             </span>
           </div>
-          <div className="grid grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
             {[
               { label: 'Resume Score', score: selectedScore.resume_score, color: 'text-success' },
               { label: 'Interview Score', score: selectedScore.interview_score, color: 'text-info' },

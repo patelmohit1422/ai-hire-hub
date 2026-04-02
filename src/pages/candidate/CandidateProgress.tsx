@@ -161,7 +161,7 @@ export default function CandidateProgress() {
                     }`}
                   />
                 </div>
-                <div className="flex justify-between mt-2">
+                <div className="hidden sm:flex justify-between mt-2">
                   <span className="text-xs text-muted-foreground">Applied</span>
                   <span className="text-xs text-muted-foreground">Screening</span>
                   <span className="text-xs text-muted-foreground">Interview</span>
