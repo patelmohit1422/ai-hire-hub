@@ -133,7 +133,7 @@ export default function CandidateJobs() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.08 }}
                   whileHover={{ x: 4 }}
-                  className="rounded-xl border border-border bg-card p-5 shadow-card hover:shadow-glow transition-all flex items-center justify-between"
+                  className="rounded-xl border border-border bg-card p-4 sm:p-5 shadow-card hover:shadow-glow transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4"
                 >
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
