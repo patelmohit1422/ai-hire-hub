@@ -128,7 +128,7 @@ export default function CandidateProgress() {
                 transition={{ delay: i * 0.1 }}
                 className="rounded-xl border border-border bg-card p-5 shadow-card"
               >
-                <div className="flex items-center justify-between mb-3">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-3 gap-2">
                   <div>
                     <h3 className="font-display font-semibold text-foreground text-sm">{app.jobTitle}</h3>
                     <div className="flex flex-wrap gap-1 mt-1">
