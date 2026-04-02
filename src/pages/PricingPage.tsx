@@ -36,7 +36,7 @@ const plans = [
 export default function PricingPage() {
   const navigate = useNavigate();
   return (
-    <div className="min-h-screen bg-background py-24 px-6">
+    <div className="min-h-screen bg-background py-24 px-4 sm:px-6">
       <div className="max-w-5xl mx-auto">
         {/* Nav */}
         <motion.nav
