@@ -36,7 +36,7 @@ const plans = [
 export default function PricingPage() {
   const navigate = useNavigate();
   return (
-    <div className="min-h-screen bg-background py-24 px-6">
+    <div className="min-h-screen bg-background py-24 px-4 sm:px-6">
       <div className="max-w-5xl mx-auto">
         {/* Nav */}
         <motion.nav
@@ -80,7 +80,7 @@ export default function PricingPage() {
           </p>
         </motion.div>
 
-        <div className="grid md:grid-cols-3 gap-5 max-w-4xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-4xl mx-auto">
           {plans.map((plan, i) => (
             <motion.div
               key={plan.name}

@@ -6,9 +6,11 @@ import { toast } from 'sonner';
 import {
   LayoutDashboard, Users, Briefcase, BarChart3, Settings, FileText,
   UserCheck, GitCompare, ClipboardList, MessageSquare, Award,
-  Upload, Search, PlayCircle, TrendingUp, Bell, ChevronLeft, LogOut, Shield
+  Upload, Search, PlayCircle, TrendingUp, Bell, ChevronLeft, LogOut, Shield, Menu, X
 } from 'lucide-react';
 import ThemeToggle from '@/components/ThemeToggle';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet';
 
 interface SidebarItem {
   label: string;
@@ -60,11 +62,51 @@ interface DashboardLayoutProps {
   children: ReactNode;
 }
 
+// sidebar nav content shared between desktop and mobile
+function SidebarNav({ config, role, location, onNavClick }: {
+  config: typeof sidebarConfigs['admin'];
+  role: string;
+  location: ReturnType<typeof useLocation>;
+  onNavClick?: () => void;
+}) {
+  return (
+    <nav className="flex-1 p-2.5 space-y-0.5 overflow-y-auto">
+      {config.items.map((item) => {
+        const isActive = location.pathname === item.path;
+        return (
+          <NavLink
+            key={item.path}
+            to={item.path}
+            onClick={onNavClick}
+            className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] transition-colors duration-150 relative ${
+              isActive
+                ? 'bg-primary/8 text-primary font-medium'
+                : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+            }`}
+          >
+            {isActive && (
+              <motion.div
+                layoutId={`sidebar-indicator-${role}`}
+                className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full bg-primary"
+                transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+              />
+            )}
+            {item.icon}
+            <span>{item.label}</span>
+          </NavLink>
+        );
+      })}
+    </nav>
+  );
+}
+
 export default function DashboardLayout({ role, children }: DashboardLayoutProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const config = sidebarConfigs[role];
   const [userName, setUserName] = useState('');
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -75,6 +117,11 @@ export default function DashboardLayout({ role, children }: DashboardLayoutProps
     });
   }, []);
 
+  // close mobile drawer on route change
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [location.pathname]);
+
   const roleLabel = role.charAt(0).toUpperCase() + role.slice(1);
 
   async function handleLogout() {
@@ -83,84 +130,99 @@ export default function DashboardLayout({ role, children }: DashboardLayoutProps
     navigate('/');
   }
 
+  // header for sidebar (shared)
+  const sidebarHeader = (
+    <div className="p-5 border-b border-border">
+      <div className="flex items-center gap-3">
+        <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground">
+          {role === 'admin' ? <Shield size={16} /> : role === 'recruiter' ? <Briefcase size={16} /> : <Users size={16} />}
+        </div>
+        <div className="min-w-0">
+          <p className="font-medium text-sm text-foreground truncate">{userName || config.title}</p>
+          <p className="text-xs text-muted-foreground">{roleLabel}</p>
+        </div>
+      </div>
+    </div>
+  );
+
+  // footer for sidebar (shared)
+  const sidebarFooter = (
+    <div className="p-2.5 border-t border-border space-y-0.5">
+      <div className="flex items-center justify-between px-3 py-2">
+        <span className="text-xs text-muted-foreground">Theme</span>
+        <ThemeToggle />
+      </div>
+      <NavLink
+        to="/"
+        className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+      >
+        <ChevronLeft size={16} />
+        <span>Back to Home</span>
+      </NavLink>
+      <button onClick={handleLogout} className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] text-destructive hover:bg-destructive/8 transition-colors w-full">
+        <LogOut size={16} />
+        <span>Logout</span>
+      </button>
+    </div>
+  );
+
   return (
     <div className="flex h-screen overflow-hidden bg-background">
-      {/* Sidebar */}
-      <aside className="w-60 flex-shrink-0 flex flex-col border-r border-border bg-sidebar">
-        <div className="p-5 border-b border-border">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground">
-              {role === 'admin' ? <Shield size={16} /> : role === 'recruiter' ? <Briefcase size={16} /> : <Users size={16} />}
-            </div>
-            <div className="min-w-0">
-              <p className="font-medium text-sm text-foreground truncate">{userName || config.title}</p>
-              <p className="text-xs text-muted-foreground">{roleLabel}</p>
-            </div>
-          </div>
-        </div>
+      {/* Desktop Sidebar */}
+      {!isMobile && (
+        <aside className="w-60 flex-shrink-0 flex flex-col border-r border-border bg-sidebar">
+          {sidebarHeader}
+          <SidebarNav config={config} role={role} location={location} />
+          {sidebarFooter}
+        </aside>
+      )}
 
-        <nav className="flex-1 p-2.5 space-y-0.5 overflow-y-auto">
-          {config.items.map((item) => {
-            const isActive = location.pathname === item.path;
-            return (
-              <NavLink
-                key={item.path}
-                to={item.path}
-                className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] transition-colors duration-150 relative ${
-                  isActive
-                    ? 'bg-primary/8 text-primary font-medium'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                }`}
-              >
-                {isActive && (
-                  <motion.div
-                    layoutId={`sidebar-indicator-${role}`}
-                    className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full bg-primary"
-                    transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                  />
-                )}
-                {item.icon}
-                <span>{item.label}</span>
-              </NavLink>
-            );
-          })}
-        </nav>
-
-        <div className="p-2.5 border-t border-border space-y-0.5">
-          <div className="flex items-center justify-between px-3 py-2">
-            <span className="text-xs text-muted-foreground">Theme</span>
-            <ThemeToggle />
-          </div>
-          <NavLink
-            to="/"
-            className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
-          >
-            <ChevronLeft size={16} />
-            <span>Back to Home</span>
-          </NavLink>
-          <button onClick={handleLogout} className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] text-destructive hover:bg-destructive/8 transition-colors w-full">
-            <LogOut size={16} />
-            <span>Logout</span>
-          </button>
-        </div>
-      </aside>
+      {/* Mobile Sheet Sidebar */}
+      {isMobile && (
+        <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+          <SheetContent side="left" className="w-64 p-0 flex flex-col">
+            <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
+            {sidebarHeader}
+            <SidebarNav config={config} role={role} location={location} onNavClick={() => setMobileOpen(false)} />
+            {sidebarFooter}
+          </SheetContent>
+        </Sheet>
+      )}
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto">
-        <div className="p-6 lg:p-8">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={location.pathname}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.2 }}
-            >
-              {children}
-            </motion.div>
-          </AnimatePresence>
-        </div>
-      </main>
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Mobile top bar */}
+        {isMobile && (
+          <header className="flex items-center justify-between px-4 py-3 border-b border-border bg-background">
+            <button onClick={() => setMobileOpen(true)} className="p-2 rounded-lg hover:bg-muted transition-colors">
+              <Menu size={20} className="text-foreground" />
+            </button>
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 rounded bg-primary flex items-center justify-center text-primary-foreground">
+                {role === 'admin' ? <Shield size={12} /> : role === 'recruiter' ? <Briefcase size={12} /> : <Users size={12} />}
+              </div>
+              <span className="font-semibold text-sm text-foreground">{userName || config.title}</span>
+            </div>
+            <ThemeToggle />
+          </header>
+        )}
+
+        <main className="flex-1 overflow-y-auto">
+          <div className="p-4 sm:p-6 lg:p-8">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={location.pathname}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.2 }}
+              >
+                {children}
+              </motion.div>
+            </AnimatePresence>
+          </div>
+        </main>
+      </div>
     </div>
   );
 }

@@ -1,8 +1,9 @@
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Brain, Shield, BarChart3, Users, Zap, Clock, CheckCircle2, Star, FileText, MessageSquare, Award } from 'lucide-react';
+import { ArrowRight, Brain, Shield, BarChart3, Users, Zap, Clock, CheckCircle2, Star, FileText, MessageSquare, Award, Menu, X } from 'lucide-react';
 import HeroScene from '@/components/HeroScene';
 import ThemeToggle from '@/components/ThemeToggle';
+import { useState } from 'react';
 
 const features = [
   { icon: <Brain size={22} />, title: 'AI Resume Parsing', desc: 'Extract skills, experience, and education automatically from any resume format.' },
@@ -34,6 +35,8 @@ const testimonials = [
 ];
 
 export default function LandingPage() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   return (
     <div className="min-h-screen bg-background overflow-x-hidden">
       {/* Navbar */}
@@ -43,7 +46,7 @@ export default function LandingPage() {
         transition={{ duration: 0.5 }}
         className="fixed top-0 left-0 right-0 z-50 glass-strong"
       >
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
               <Brain size={17} className="text-primary-foreground" />
@@ -62,7 +65,38 @@ export default function LandingPage() {
               </button>
             </Link>
           </div>
+          {/* Mobile hamburger */}
+          <div className="flex items-center gap-2 md:hidden">
+            <ThemeToggle />
+            <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="p-2 rounded-lg hover:bg-muted transition-colors">
+              {mobileMenuOpen ? <X size={20} className="text-foreground" /> : <Menu size={20} className="text-foreground" />}
+            </button>
+          </div>
         </div>
+        {/* Mobile menu dropdown */}
+        <AnimatePresence>
+          {mobileMenuOpen && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="md:hidden overflow-hidden border-t border-border bg-background"
+            >
+              <div className="px-4 py-4 space-y-3">
+                <a href="#features" onClick={() => setMobileMenuOpen(false)} className="block text-sm text-muted-foreground hover:text-foreground transition-colors py-2">Features</a>
+                <a href="#how-it-works" onClick={() => setMobileMenuOpen(false)} className="block text-sm text-muted-foreground hover:text-foreground transition-colors py-2">How It Works</a>
+                <Link to="/pricing" onClick={() => setMobileMenuOpen(false)} className="block text-sm text-muted-foreground hover:text-foreground transition-colors py-2">Pricing</Link>
+                <Link to="/auth" onClick={() => setMobileMenuOpen(false)} className="block text-sm text-muted-foreground hover:text-foreground transition-colors py-2">Login</Link>
+                <Link to="/auth?mode=register" onClick={() => setMobileMenuOpen(false)}>
+                  <button className="w-full px-5 py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-opacity">
+                    Get Started
+                  </button>
+                </Link>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </motion.nav>
 
       {/* Hero */}

@@ -133,7 +133,7 @@ export default function CandidateJobs() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.08 }}
                   whileHover={{ x: 4 }}
-                  className="rounded-xl border border-border bg-card p-5 shadow-card hover:shadow-glow transition-all flex items-center justify-between"
+                  className="rounded-xl border border-border bg-card p-4 sm:p-5 shadow-card hover:shadow-glow transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4"
                 >
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
@@ -156,7 +156,7 @@ export default function CandidateJobs() {
                       )}
                     </div>
                   </div>
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-3 sm:gap-4 self-end sm:self-auto">
                     {profile?.resume_skills && profile.resume_skills.length > 0 && (
                       <div className="text-center">
                         <p className={`text-lg font-display font-bold ${match >= 80 ? 'text-success' : match >= 60 ? 'text-warning' : 'text-muted-foreground'}`}>{match}%</p>
